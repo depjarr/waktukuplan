@@ -86,8 +86,13 @@ export function Toolbar() {
           <ThemePicker onChange={(theme) => p.updateUi({ theme })} />
           <FontPicker onChange={(font) => p.updateUi({ font })} />
 
+          {/*
+            Tombol "Keluar" DIHAPUS dari sini — sekarang jadi tombol tersendiri
+            (ikon lingkaran) di pojok kanan atas JournalHeader, biar selalu
+            kelihatan dan tidak numpang di popover yang bisa kepotong.
+          */}
           <Popover align="right" trigger={(toggle) => <button className="tool tool-drop" title="Pengaturan tampilan" onClick={toggle}><Icon n="sliders" /> <span className="lbl">Tampilan</span></button>}>
-            {(close) => (
+            {() => (
               <div className="vopt">
                 <div>
                   <h4>Catatan</h4>
@@ -104,9 +109,6 @@ export function Toolbar() {
                     <button className="chip" {...chip(ui.mini)} onClick={() => p.updateUi({ mini: !ui.mini })}>Kalender mini</button>
                     <button className="chip" {...chip(ui.stickers)} onClick={() => p.updateUi({ stickers: !ui.stickers })}>Stiker</button>
                   </div>
-                </div>
-                <div className="row">
-                  <form action="/auth/signout" method="post"><button className="chip" type="submit">Keluar</button></form>
                 </div>
               </div>
             )}

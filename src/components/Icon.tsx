@@ -19,6 +19,7 @@ const PATHS = {
   bolt: <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z" strokeLinejoin="round" />,
   eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>,
   eyeOff: <><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6 0 10 7 10 7a15.6 15.6 0 0 1-2.28 3.34M6.6 6.62C3.5 8.32 2 12 2 12s3.5 7 10 7a9 9 0 0 0 3.75-.79" /><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" /><path d="m2 2 20 20" /></>,
+  logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></>,
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

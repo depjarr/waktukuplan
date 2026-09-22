@@ -2,6 +2,10 @@
 .jheader{padding:18px 24px 6px}
 .jtitlerow{display:flex;align-items:center;gap:10px}
 .jtitlerow svg{width:32px;height:32px;flex:none}
+.jlogout-form{margin-left:auto}
+.jlogout{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);
+  display:grid;place-items:center;color:var(--ink2);cursor:pointer;flex:none}
+.jlogout:hover{color:var(--accent);border-color:var(--accent)}
 .jtitle,.jtitle-in{font:600 28px/1 var(--serif);letter-spacing:-.3px;color:var(--ink);background:none;border:0;padding:2px 0;text-align:left}
 .jtitle{cursor:text}
 .jtitle:hover{color:var(--accent)}

@@ -25,7 +25,12 @@ export function Popover({ trigger, children, align = 'left' }: {
   return (
     <div className="popwrap" ref={ref}>
       {trigger(() => setOpen((o) => !o), open)}
-      {open && <div className={`pop ${align}`}>{children(() => setOpen(false))}</div>}
+      {open && (
+        <>
+          <div className="pop-backdrop" onClick={() => setOpen(false)} />
+          <div className={`pop ${align}`}>{children(() => setOpen(false))}</div>
+        </>
+      )}
     </div>
   );
 }

@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const isPublic = path.startsWith('/login') || path.startsWith('/auth') || path.startsWith('/api/whatsapp');
+  const isPublic = path.startsWith('/login') || path.startsWith('/auth') || path.startsWith('/api/whatsapp') || path.startsWith('/reset-password');
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

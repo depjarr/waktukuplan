@@ -111,6 +111,25 @@ dialog::backdrop{background:rgba(20,14,16,.5)}
   .notes{padding:10px}
   .ntitle{font-size:16px;margin:5px 0 4px}
 }
+
+/*
+  Jaring pengaman tambahan (di LUAR breakpoint 860px di atas): banyak browser
+  HP yang minta "Situs desktop" tetap melaporkan lebar viewport ~980px ke CSS,
+  jadi toolbar masih dianggap "desktop" (.toolgrp-full, tombol Stiker/Tema/
+  Font/Tampilan satu-satu dengan popover kecil masing-masing) — popover kecil
+  ini yang gampang kepotong tepi layar kalau tombolnya dekat pinggir.
+  Jadi sampai 1024px, popovernya dipaksa pakai gaya bottom-sheet yang sama
+  seperti di atas: full width, nempel di bawah, aman dari kepotong.
+*/
+@media (max-width:1024px){
+  .pop, .pop.right{
+    position:fixed;
+    left:12px; right:12px; top:auto;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px));
+    width:auto; max-width:none; max-height:78vh; overflow-y:auto;
+  }
+}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ---- popup "Kirim ke AI" (restyle: orb + kartu saran + input pill) ---- */

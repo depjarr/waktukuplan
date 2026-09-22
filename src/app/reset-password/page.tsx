@@ -6,9 +6,14 @@ import { ThemePicker } from '@/components/ThemePicker';
 import { createClient } from '@/lib/supabase/client';
 
 /**
- * Halaman set kata sandi baru. Dituju setelah user klik link reset dari
- * email (lewat /auth/callback?next=/reset-password), tapi juga bisa
- * dipakai user yang sudah login untuk ganti kata sandi langsung.
+ * Halaman set kata sandi baru. Dituju langsung oleh link reset dari email
+ * (redirectTo: '/reset-password'). Supabase client mendeteksi kode di URL
+ * sendiri dan menukarnya jadi sesi recovery di browser yang sama, lalu
+ * memicu event 'PASSWORD_RECOVERY' lewat onAuthStateChange — makanya kita
+ * TIDAK menukar kode lewat server (/auth/callback), karena penukaran PKCE
+ * harus terjadi di browser yang sama persis dengan yang meminta reset.
+ * Halaman ini juga otomatis bisa dipakai user yang sudah login biasa untuk
+ * ganti kata sandi langsung (tanpa lewat link email).
  */
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -24,10 +29,30 @@ export default function ResetPasswordPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    sb.auth.getUser().then(({ data }) => {
-      setHasSession(!!data.user);
+    let settled = false;
+    const finish = (ok: boolean) => {
+      if (settled) return;
+      settled = true;
+      setHasSession(ok);
       setChecking(false);
+    };
+
+    // Kalau kode di URL sudah/lagi ditukar Supabase, event ini yang menandai
+    // sesi recovery siap dipakai untuk updateUser({ password }).
+    const { data: sub } = sb.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') finish(true);
     });
+
+    // Fallback: kalau halaman dibuka oleh user yang memang sudah login biasa
+    // (bukan dari link email), atau event di atas sudah keburu lewat sebelum
+    // listener terpasang.
+    sb.auth.getUser().then(({ data }) => { if (data.user) finish(true); });
+
+    // Kalau setelah beberapa detik tidak ada sesi sama sekali, anggap link
+    // sudah tidak berlaku (kadaluarsa / sudah dipakai / dibuka di browser lain).
+    const timeout = setTimeout(() => finish(false), 4000);
+
+    return () => { sub.subscription.unsubscribe(); clearTimeout(timeout); };
   }, [sb]);
 
   async function submit() {
@@ -63,7 +88,9 @@ export default function ResetPasswordPage() {
         <div className="auth-card">
           <h1>waktukuplan</h1>
           <p className="auth-sub">Kata sandi berhasil diganti</p>
-          <button className="btn primary" onClick={() => { router.push('/'); router.refresh(); }}>Lanjut ke jurnal</button>
+          <button className="btn primary" onClick={async () => { await sb.auth.signOut(); router.push('/login'); }}>
+            Masuk dengan kata sandi baru
+          </button>
         </div>
       </main>
     );

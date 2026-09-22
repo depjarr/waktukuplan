@@ -36,10 +36,12 @@ export default function LoginPage() {
       else setMsg('Cek emailmu untuk konfirmasi, lalu masuk.');
     } else {
       // mode === 'forgot': kirim link reset kata sandi ke email.
-      // Setelah user klik link, /auth/callback akan menukar kode sesi
-      // lalu mengarahkan ke /reset-password (lihat param `next`).
+      // redirectTo langsung ke /reset-password (BUKAN lewat /auth/callback) —
+      // penukaran kode reset harus terjadi di browser yang sama persis dengan
+      // yang meminta reset, jadi biarkan Supabase client yang menanganinya
+      // otomatis di halaman itu lewat event PASSWORD_RECOVERY.
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/auth/callback?next=/reset-password`,
+        redirectTo: `${location.origin}/reset-password`,
       });
       if (error) setMsg(error.message);
       else setMsg('Link reset kata sandi sudah dikirim, cek emailmu.');

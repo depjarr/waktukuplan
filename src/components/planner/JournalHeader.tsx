@@ -50,6 +50,11 @@ export function JournalHeader() {
         ) : (
           <button className="jtitle" onClick={startEdit} title="Ganti nama jurnal">{title}</button>
         )}
+        <form action="/auth/signout" method="post" className="jlogout-form">
+          <button className="jlogout" type="submit" title="Keluar" aria-label="Keluar">
+            <Icon n="logout" size={16} />
+          </button>
+        </form>
       </div>
       <p className="tag">jurnal jadwal yang bisa kamu tulis sendiri atau titip ke AI</p>
       <div className="jcover" style={ui.headerImage ? { backgroundImage: `url("${ui.headerImage}")` } : undefined}>
