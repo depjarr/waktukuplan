@@ -17,6 +17,8 @@ const PATHS = {
   pin: <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>,
   palette: <><circle cx="13.5" cy="6.5" r=".6" /><circle cx="17.5" cy="10.5" r=".6" /><circle cx="8.5" cy="7.5" r=".6" /><circle cx="6.5" cy="12.5" r=".6" /><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.96 6.01 17.46 2 12 2z" /></>,
   bolt: <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z" strokeLinejoin="round" />,
+  eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>,
+  eyeOff: <><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6 0 10 7 10 7a15.6 15.6 0 0 1-2.28 3.34M6.6 6.62C3.5 8.32 2 12 2 12s3.5 7 10 7a9 9 0 0 0 3.75-.79" /><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" /><path d="m2 2 20 20" /></>,
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

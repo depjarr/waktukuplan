@@ -8,6 +8,10 @@ const REMIND_MINUTES: Record<string, number> = {
   '5m': 5, '15m': 15, '30m': 30, '1h': 60, '3h': 180, '1d': 1440, '3d': 4320,
 };
 
+// Semua tanggal/jam disimpan sebagai waktu lokal WIB (UTC+7).
+// Ganti offset ini kalau nanti mau dukung timezone per-user.
+const APP_TZ_OFFSET = '+07:00';
+
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization');
   if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -27,7 +31,13 @@ export async function GET(req: NextRequest) {
   let sent = 0;
   for (const ev of events ?? []) {
     if (!ev.start_time) continue;
-    const eventTime = new Date(`${ev.date}T${ev.start_time}:00`);
+
+    // FIX: tambahkan offset eksplisit, jangan biarkan JS menebak timezone server.
+    // Tanpa ini, string "2026-09-22T19:00:00" di-parse sebagai local time
+    // proses Node (biasanya UTC di Vercel), jadi meleset 7 jam dari WIB.
+    const eventTime = new Date(`${ev.date}T${ev.start_time}:00${APP_TZ_OFFSET}`);
+    if (Number.isNaN(eventTime.getTime())) continue; // jaga-jaga data korup
+
     const alreadySent: string[] = ev.reminders_sent ?? [];
     const toSend: string[] = [];
 

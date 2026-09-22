@@ -13,7 +13,12 @@ const REMINDERS = [
   ['1d', '1 hari sebelumnya'], ['3d', '3 hari sebelumnya'],
 ];
 
-/** Form tambah/ubah jadwal (manual). Dibuat ulang tiap dibuka, jadi selalu mulai bersih. */
+/**
+ * Form tambah/ubah jadwal (manual).
+ * Selalu dipasangi `key` di <EventDialog> supaya React remount komponen ini
+ * setiap kali target event berubah — jadi useState di bawah dijamin mulai
+ * bersih tanpa bergantung pada apakah <Modal> unmount children-nya atau tidak.
+ */
 function EventForm({ existing, presetDate }: { existing: EventRow | null; presetDate?: string }) {
   const p = usePlanner();
   const e = existing;
@@ -29,6 +34,7 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
   const [starred, setStarred] = useState(e?.starred ?? false);
   const [image, setImage] = useState(e?.image_url ?? '');
   const [busy, setBusy] = useState(false);
+  const [endClearedNotice, setEndClearedNotice] = useState(false);
 
   function toggleRemind(v: string) {
     setRemind((r) => (r.includes(v) ? r.filter((x) => x !== v) : [...r, v]));
@@ -50,7 +56,13 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return p.toast('Pilih tanggalnya dulu');
     const st = isTime(start) ? start : null;
     let en = isTime(end) ? end : null;
-    if (st && en && toMin(en) <= toMin(st)) en = null;
+    if (st && en && toMin(en) <= toMin(st)) {
+      en = null;
+      setEndClearedNotice(true);
+      // Kasih tahu user kenapa jam selesainya hilang, alih-alih diam-diam.
+      p.toast('Jam selesai diabaikan karena tidak setelah jam mulai');
+      return;
+    }
     const data = {
       title: title.trim(), date, start_time: st, end_time: en, category,
       category_name: category === 'Lainnya' ? catName.trim() || null : null,
@@ -99,9 +111,9 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
         </div>
         <div className="fld span2"><span>Jam</span>
           <div className="row">
-            <input type="time" aria-label="Jam mulai" value={start} onChange={(ev) => setStart(ev.target.value)} />
+            <input type="time" aria-label="Jam mulai" value={start} onChange={(ev) => { setStart(ev.target.value); setEndClearedNotice(false); }} />
             <em>sampai</em>
-            <input type="time" aria-label="Jam selesai" value={end} onChange={(ev) => setEnd(ev.target.value)} />
+            <input type="time" aria-label="Jam selesai" value={end} onChange={(ev) => { setEnd(ev.target.value); setEndClearedNotice(false); }} />
           </div>
           <div className="row">
             {([['Pagi', '08:00'], ['Siang', '12:00'], ['Sore', '16:00'], ['Malam', '19:00']] as const).map(([l, t]) => (
@@ -109,6 +121,7 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
             ))}
             <button className="chip" onClick={() => { setStart(''); setEnd(''); }}>Tanpa jam</button>
           </div>
+          {endClearedNotice && <small className="hint">Jam selesai harus setelah jam mulai.</small>}
         </div>
         <label className="fld span2"><span>Lokasi</span>
           <input type="text" maxLength={200} placeholder="Misal: Kantor, Istora Senayan" value={place} onChange={(ev) => setPlace(ev.target.value)} />
@@ -153,7 +166,13 @@ export function EventDialog() {
   const existing = eventDlg?.id ? events.find((x) => x.id === eventDlg.id) ?? null : null;
   return (
     <Modal open={!!eventDlg} onClose={closeEvent} labelledBy="evHead">
-      <EventForm existing={existing} presetDate={eventDlg?.date} />
+      {/*
+        FIX: key memaksa React remount EventForm setiap kali target event
+        berubah (event lain / mode tambah baru), sehingga semua useState
+        di dalamnya dijamin ter-reset — tidak bergantung pada apakah
+        <Modal> benar-benar unmount children saat open=false.
+      */}
+      <EventForm key={eventDlg?.id ?? eventDlg?.date ?? 'new'} existing={existing} presetDate={eventDlg?.date} />
     </Modal>
   );
 }
