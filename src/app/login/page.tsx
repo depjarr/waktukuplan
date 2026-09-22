@@ -36,12 +36,14 @@ export default function LoginPage() {
       else setMsg('Cek emailmu untuk konfirmasi, lalu masuk.');
     } else {
       // mode === 'forgot': kirim link reset kata sandi ke email.
-      // redirectTo langsung ke /reset-password (BUKAN lewat /auth/callback) —
-      // penukaran kode reset harus terjadi di browser yang sama persis dengan
-      // yang meminta reset, jadi biarkan Supabase client yang menanganinya
-      // otomatis di halaman itu lewat event PASSWORD_RECOVERY.
+      // redirectTo di sini cuma fallback/allowlist — link yang benar-benar
+      // dipakai user dikontrol lewat template email di Supabase Dashboard,
+      // yang diarahkan ke /reset-password/confirm (halaman perantara yang
+      // baru memverifikasi token saat tombolnya diklik manusia, bukan saat
+      // halaman dibuka otomatis oleh email security scanner). Lihat komentar
+      // di src/app/reset-password/confirm/page.tsx untuk detail & template.
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/reset-password`,
+        redirectTo: `${location.origin}/reset-password/confirm`,
       });
       if (error) setMsg(error.message);
       else setMsg('Link reset kata sandi sudah dikirim, cek emailmu.');
