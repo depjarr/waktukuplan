@@ -17,7 +17,7 @@ export interface EventRow {
   image_url: string | null;
   done: boolean;
   starred: boolean;
-  remind: string | null;
+  remind: string[] | null;
   kind: EventKind;
   source: string;
   created_at?: string;

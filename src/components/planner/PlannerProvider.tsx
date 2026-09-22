@@ -170,7 +170,7 @@ export function PlannerProvider({ userId, children }: { userId: string; children
   const addEvent = useCallback(async (input: NewEvent) => {
     const row: Partial<EventRow> = {
       start_time: null, end_time: null, category: 'Lainnya', category_name: null, place: null, note: null,
-      image_url: null, done: false, starred: false, remind: null, kind: 'event', source: 'web', ...input,
+      image_url: null, done: false, starred: false, remind: [], kind: 'event', source: 'web', ...input,
     };
     try {
       return await eventsT.insert(row);

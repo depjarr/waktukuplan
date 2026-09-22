@@ -7,7 +7,11 @@ import type { Category, EventRow } from '@/lib/types';
 import { Modal } from './Modal';
 import { usePlanner } from './PlannerProvider';
 
-const REMINDERS = [['', 'Tanpa pengingat'], ['10m', '10 menit sebelumnya'], ['1h', '1 jam sebelumnya'], ['1d', '1 hari sebelumnya']];
+const REMINDERS = [
+  ['5m', '5 menit sebelumnya'], ['15m', '15 menit sebelumnya'], ['30m', '30 menit sebelumnya'],
+  ['1h', '1 jam sebelumnya'], ['3h', '3 jam sebelumnya'],
+  ['1d', '1 hari sebelumnya'], ['3d', '3 hari sebelumnya'],
+];
 
 /** Form tambah/ubah jadwal (manual). Dibuat ulang tiap dibuka, jadi selalu mulai bersih. */
 function EventForm({ existing, presetDate }: { existing: EventRow | null; presetDate?: string }) {
@@ -21,10 +25,14 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
   const [end, setEnd] = useState(e?.end_time ?? '');
   const [place, setPlace] = useState(e?.place ?? '');
   const [note, setNote] = useState(e?.note ?? '');
-  const [remind, setRemind] = useState(e?.remind ?? '');
+  const [remind, setRemind] = useState<string[]>(e?.remind ?? []);
   const [starred, setStarred] = useState(e?.starred ?? false);
   const [image, setImage] = useState(e?.image_url ?? '');
   const [busy, setBusy] = useState(false);
+
+  function toggleRemind(v: string) {
+    setRemind((r) => (r.includes(v) ? r.filter((x) => x !== v) : [...r, v]));
+  }
 
   async function pickImage(file: File | undefined) {
     if (!file) return;
@@ -46,7 +54,7 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
     const data = {
       title: title.trim(), date, start_time: st, end_time: en, category,
       category_name: category === 'Lainnya' ? catName.trim() || null : null,
-      place: place.trim() || null, note: note.trim() || null, remind: remind || null, starred, image_url: image || null,
+      place: place.trim() || null, note: note.trim() || null, remind, starred, image_url: image || null,
     };
     if (e) {
       await p.saveEvent(e.id, data);
@@ -108,11 +116,15 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
         <label className="fld span2"><span>Catatan</span>
           <textarea rows={2} maxLength={500} placeholder="Tulis apa saja yang perlu diingat" value={note} onChange={(ev) => setNote(ev.target.value)} />
         </label>
-        <label className="fld"><span>Pengingat</span>
-          <select value={remind} onChange={(ev) => setRemind(ev.target.value)}>
-            {REMINDERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-        </label>
+        <div className="fld span2"><span>Pengingat</span>
+          <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
+            {REMINDERS.map(([v, l]) => (
+              <button key={v} type="button" className="chip" aria-pressed={remind.includes(v)} onClick={() => toggleRemind(v)}>
+                {remind.includes(v) ? '✓ ' : ''}{l}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="fld"><span>Penanda</span>
           <div className="row"><button className="chip" aria-pressed={starred} onClick={() => setStarred((s) => !s)}>{starred ? '★' : '☆'} Penting</button></div>
         </div>

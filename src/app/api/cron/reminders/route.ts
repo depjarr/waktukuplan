@@ -4,7 +4,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const REMIND_MINUTES: Record<string, number> = { '10m': 10, '1h': 60, '1d': 1440 };
+const REMIND_MINUTES: Record<string, number> = {
+  '5m': 5, '15m': 15, '30m': 30, '1h': 60, '3h': 180, '1d': 1440, '3d': 4320,
+};
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization');
@@ -15,40 +17,48 @@ export async function GET(req: NextRequest) {
   const admin = createAdminClient();
   const now = new Date();
 
-  // ambil jadwal yang punya reminder & belum dikirim
   const { data: events, error } = await admin
     .from('events')
-    .select('id, user_id, title, date, start_time, remind')
-    .not('remind', 'is', null)
-    .neq('remind', '')
-    .is('reminder_sent_at', null);
+    .select('id, user_id, title, date, start_time, remind, reminders_sent')
+    .not('remind', 'eq', '{}');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   let sent = 0;
   for (const ev of events ?? []) {
-    const minutesBefore = REMIND_MINUTES[ev.remind as string];
-    if (!minutesBefore || !ev.start_time) continue;
-
+    if (!ev.start_time) continue;
     const eventTime = new Date(`${ev.date}T${ev.start_time}:00`);
-    const triggerTime = new Date(eventTime.getTime() - minutesBefore * 60_000);
+    const alreadySent: string[] = ev.reminders_sent ?? [];
+    const toSend: string[] = [];
 
-    // udah waktunya reminder dikirim (dalam window ±1 menit karena cron jalan tiap menit)
-    if (now >= triggerTime && now < eventTime) {
-      const { data: userData } = await admin.auth.admin.getUserById(ev.user_id);
-      const email = userData?.user?.email;
-      if (!email) continue;
+    for (const r of (ev.remind as string[]) ?? []) {
+      if (alreadySent.includes(r)) continue;
+      const minutesBefore = REMIND_MINUTES[r];
+      if (!minutesBefore) continue;
+      const triggerTime = new Date(eventTime.getTime() - minutesBefore * 60_000);
+      if (now >= triggerTime && now < eventTime) toSend.push(r);
+    }
 
+    if (toSend.length === 0) continue;
+
+    const { data: userData } = await admin.auth.admin.getUserById(ev.user_id);
+    const email = userData?.user?.email;
+    if (!email) continue;
+
+    const labels: Record<string, string> = {
+      '5m': '5 menit', '15m': '15 menit', '30m': '30 menit', '1h': '1 jam', '3h': '3 jam', '1d': '1 hari', '3d': '3 hari',
+    };
+    for (const r of toSend) {
       await resend.emails.send({
-        from: 'waktukuplan <reminder@resend.dev>', // ganti setelah domain kamu terverifikasi di Resend
+        from: 'waktukuplan <reminder@resend.dev>',
         to: email,
         subject: `Pengingat: ${ev.title}`,
-        html: `<p>Jadwal <b>${ev.title}</b> akan dimulai jam ${ev.start_time} hari ini.</p>`,
+        html: `<p>Jadwal <b>${ev.title}</b> akan dimulai jam ${ev.start_time} (${labels[r]} lagi).</p>`,
       });
-
-      await admin.from('events').update({ reminder_sent_at: now.toISOString() }).eq('id', ev.id);
       sent++;
     }
+
+    await admin.from('events').update({ reminders_sent: [...alreadySent, ...toSend] }).eq('id', ev.id);
   }
 
   return NextResponse.json({ ok: true, checked: events?.length ?? 0, sent });
