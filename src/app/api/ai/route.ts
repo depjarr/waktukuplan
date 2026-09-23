@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
   try {
     // Memakai client milik user (bukan admin), jadi RLS tetap berlaku.
-    const result = await runAgent({ sb, userId: user.id, message, source: 'web', timezone: profile?.timezone ?? 'Asia/Jakarta' });
+    const result = await runAgent({ sb, userId: user.id, message, timezone: profile?.timezone ?? 'Asia/Jakarta' });
     return NextResponse.json(result);
   } catch (err) {
     console.error('[ai]', err);
