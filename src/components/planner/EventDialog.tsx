@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { CATEGORIES, CAT_ICON } from '@/lib/categories';
-import { addDays, isTime, toMin, ymd } from '@/lib/dates';
+import { isTime, toMin } from '@/lib/dates';
 import { resizeImage, uploadImage } from '@/lib/image';
 import type { Category, EventRow } from '@/lib/types';
 import { Modal } from './Modal';
@@ -103,30 +103,16 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
         ) : <div className="fld-spacer" />}
 
         <div className="fsec-title span2">Kapan</div>
-        <div className="fld span2"><span>Tanggal</span>
-          <div className="row">
-            <input type="date" value={date} onChange={(ev) => setDate(ev.target.value)} />
-            <div className="chipset">
-              {([['Hari ini', 0], ['Besok', 1], ['Lusa', 2]] as const).map(([l, n]) => (
-                <button key={l} type="button" className="chip" onClick={() => setDate(addDays(ymd(new Date()), n))}>{l}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="fld span2"><span>Jam</span>
-          <div className="timebox">
-            <input type="time" aria-label="Jam mulai" value={start} onChange={(ev) => { setStart(ev.target.value); setEndClearedNotice(false); }} />
-            <em>sampai</em>
-            <input type="time" aria-label="Jam selesai" value={end} onChange={(ev) => { setEnd(ev.target.value); setEndClearedNotice(false); }} />
-          </div>
-          <div className="chipset">
-            {([['Pagi', '08:00'], ['Siang', '12:00'], ['Sore', '16:00'], ['Malam', '19:00']] as const).map(([l, t]) => (
-              <button key={l} type="button" className="chip" onClick={() => setStart(t)}>{l}</button>
-            ))}
-            <button type="button" className="chip" onClick={() => { setStart(''); setEnd(''); }}>Tanpa jam</button>
-          </div>
+        <label className="fld span2"><span>Tanggal</span>
+          <input type="date" value={date} onChange={(ev) => setDate(ev.target.value)} />
+        </label>
+        <label className="fld"><span>Jam mulai</span>
+          <input type="time" aria-label="Jam mulai" value={start} onChange={(ev) => { setStart(ev.target.value); setEndClearedNotice(false); }} />
+        </label>
+        <label className="fld"><span>Jam selesai</span>
+          <input type="time" aria-label="Jam selesai" value={end} onChange={(ev) => { setEnd(ev.target.value); setEndClearedNotice(false); }} />
           {endClearedNotice && <small className="hint">Jam selesai harus setelah jam mulai.</small>}
-        </div>
+        </label>
 
         <div className="fsec-title span2">Detail</div>
         <label className="fld span2"><span>Lokasi</span>

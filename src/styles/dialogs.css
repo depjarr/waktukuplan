@@ -25,16 +25,7 @@ dialog::backdrop{background:rgba(20,14,16,.5)}
 .fsec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2);margin-top:4px;padding-top:10px;border-top:1.5px dashed var(--line)}
 .fgrid>.fsec-title:first-child{margin-top:0;padding-top:0;border-top:0}
 
-/* quick-pick chips grouped tightly so they read as one control, not loose buttons */
-.chipset{display:flex;gap:6px;flex-wrap:wrap}
-.chipset .chip{flex:0 0 auto}
 .star-chip{padding:8px 14px}
-
-/* time range shown as one unified field instead of two boxes floating apart */
-.timebox{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--cell);border-radius:var(--r1);padding:2px 10px;margin-bottom:6px}
-.timebox input[type=time]{border:0!important;background:transparent!important;padding:8px 2px!important;flex:1 1 0;min-width:0}
-.timebox input[type=time]:focus{box-shadow:none!important}
-.timebox em{flex:0 0 auto;color:var(--ink2);font-size:12px}
 
 /* reminder toggles as an organised grid of pills with a clear on/off state */
 .remind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
