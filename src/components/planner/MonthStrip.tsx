@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { Icon } from '@/components/Icon';
 import { coverSVG } from '@/lib/coverArt';
 import { MONTHS } from '@/lib/dates';
-import { resizeImage, uploadImage } from '@/lib/image';
+import { deleteImage, resizeImage, uploadImage } from '@/lib/image';
 import { usePlanner } from './PlannerProvider';
 
 /** 12 kartu bulan. Gambar tiap bulan bisa diganti lewat ikon kamera. */
@@ -19,10 +19,12 @@ export function MonthStrip() {
 
   async function onCover(i: number, file: File | undefined) {
     if (!file) return;
+    const oldUrl = covers.covers[i];
     try {
       const url = await uploadImage(sb, userId, await resizeImage(file, 520, false));
       await covers.setCover(i, url);
       toast(`Gambar ${MONTHS[i]} diganti`);
+      deleteImage(sb, oldUrl).catch(() => {}); // gagal hapus gak masalah, gak ganggu UX
     } catch {
       toast('Gambar gagal diunggah');
     }

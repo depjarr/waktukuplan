@@ -38,3 +38,13 @@ export async function uploadImage(sb: SupabaseClient, userId: string, blob: Blob
   if (error) throw error;
   return sb.storage.from('images').getPublicUrl(path).data.publicUrl;
 }
+
+/** Hapus gambar lama dari bucket 'images' berdasarkan URL publiknya (dipanggil setelah gambar baru berhasil diunggah). */
+export async function deleteImage(sb: SupabaseClient, url: string | undefined | null): Promise<void> {
+  if (!url) return;
+  const marker = '/object/public/images/';
+  const idx = url.indexOf(marker);
+  if (idx === -1) return; // bukan file dari bucket kita (misal masih cover bawaan/SVG default), lewati
+  const path = decodeURIComponent(url.slice(idx + marker.length));
+  await sb.storage.from('images').remove([path]);
+}

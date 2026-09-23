@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { Icon } from '@/components/Icon';
-import { resizeImage, uploadImage } from '@/lib/image';
+import { deleteImage, resizeImage, uploadImage } from '@/lib/image';
 import { usePlanner } from './PlannerProvider';
 
 /** Sampul + nama jurnal, bisa diganti sendiri (mirip judul halaman di aplikasi catatan). */
@@ -14,10 +14,12 @@ export function JournalHeader() {
 
   async function onCover(file: File | undefined) {
     if (!file) return;
+    const oldUrl = ui.headerImage;
     try {
       const blob = await resizeImage(file, 1400, false);
       const src = await uploadImage(sb, userId, blob);
       updateUi({ headerImage: src });
+      deleteImage(sb, oldUrl).catch(() => {}); // gagal hapus gak masalah, gak ganggu UX
     } catch {
       toast('Gambar sampul gagal diunggah');
     }
