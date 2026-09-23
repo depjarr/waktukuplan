@@ -87,8 +87,8 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ ok: true, checked: events?.length ?? 0, sent });
-  } catch (err: any) {
+ } catch (err: any) {
     console.error('[CRON FATAL ERROR]:', err);
-    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'GAGAL TOTAL: ' + (err.message || 'Internal Server Error') }, { status: 500 });
   }
 }
