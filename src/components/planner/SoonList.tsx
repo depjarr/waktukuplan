@@ -1,20 +1,24 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { catIcon } from '@/lib/categories';
-import { relDate } from '@/lib/dates';
+import { isPastEvent, relDate } from '@/lib/dates';
+import { useNow } from '@/hooks/useNow';
 import { cmpEvent, usePlanner } from './PlannerProvider';
 
-/** 5 jadwal terdekat yang belum selesai. Dicentang => hilang & diganti jadwal berikutnya. */
+/** 5 jadwal terdekat yang belum selesai. Dicentang => hilang & diganti jadwal berikutnya.
+ *  Jadwal yang jamnya sudah lewat juga otomatis hilang dari sini (tanpa perlu dicentang). */
 export function SoonList() {
   const { events, todayKey, openEvent, saveEvent } = usePlanner();
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
+  const now = useNow(30_000); // null sebelum mount, biar render server & client sama dulu
 
   const list = useMemo(
     () => events
-      .filter((e) => e.kind !== 'text' && (!e.done || leaving.has(e.id)) && e.date >= todayKey)
+      .filter((e) => e.kind !== 'text' && (!e.done || leaving.has(e.id)) && e.date >= todayKey
+        && (leaving.has(e.id) || !now || !isPastEvent(e, now)))
       .sort((a, b) => a.date.localeCompare(b.date) || cmpEvent(a, b))
       .slice(0, 5),
-    [events, todayKey, leaving],
+    [events, todayKey, leaving, now],
   );
 
   function check(id: string) {

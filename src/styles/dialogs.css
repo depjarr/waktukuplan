@@ -6,18 +6,43 @@ dialog::backdrop{background:rgba(20,14,16,.5)}
 .dhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .dhead h3{font-size:22px}
 .x{border:0;background:var(--cell);width:34px;height:34px;border-radius:var(--r1);padding:0;font-size:15px}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
 .span2{grid-column:1/-1}
-.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
-.fld>span{font-size:13px;font-weight:500;color:var(--ink2)}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld>span{font-size:12.5px;font-weight:600;color:var(--ink2);letter-spacing:.01em}
 .fld input[type=text],.fld input[type=date],.fld input[type=time],.fld select,.fld textarea,#askIn{border:1.5px solid var(--line);background:var(--cell);border-radius:var(--r1);padding:9px 12px;min-width:0;width:100%}
 .fld input:focus,.fld select:focus,.fld textarea:focus,#askIn:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
 .fld textarea{resize:vertical}
+.fld-spacer{display:none}
+@media (min-width:481px){.fld-spacer{display:block}}
 .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .row input{width:auto!important;flex:1 1 130px}
 .row em{font-style:normal;color:var(--ink2);font-size:13px}
-.prev{width:56px;height:56px;border-radius:var(--r1);background-size:cover;background-position:center;border:1.5px solid var(--line)}
-.dfoot{display:flex;gap:8px;align-items:center;margin-top:16px}
+.prev{width:40px;height:40px;border-radius:var(--r1);background-size:cover;background-position:center;border:1.5px solid var(--line)}
+.dfoot{display:flex;gap:8px;align-items:center;margin-top:18px;padding-top:14px;border-top:1.5px solid var(--line)}
+
+/* section labels that split the two-column grid into readable groups */
+.fsec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2);margin-top:4px;padding-top:10px;border-top:1.5px dashed var(--line)}
+.fgrid>.fsec-title:first-child{margin-top:0;padding-top:0;border-top:0}
+
+/* quick-pick chips grouped tightly so they read as one control, not loose buttons */
+.chipset{display:flex;gap:6px;flex-wrap:wrap}
+.chipset .chip{flex:0 0 auto}
+.star-chip{padding:8px 14px}
+
+/* time range shown as one unified field instead of two boxes floating apart */
+.timebox{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--cell);border-radius:var(--r1);padding:2px 10px;margin-bottom:6px}
+.timebox input[type=time]{border:0!important;background:transparent!important;padding:8px 2px!important;flex:1 1 0;min-width:0}
+.timebox input[type=time]:focus{box-shadow:none!important}
+.timebox em{flex:0 0 auto;color:var(--ink2);font-size:12px}
+
+/* reminder toggles as an organised grid of pills with a clear on/off state */
+.remind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
+.remind-pill{display:flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 12px 7px 8px;font-size:13px;text-align:left}
+.remind-pill:hover{border-color:var(--accent)}
+.remind-pill[aria-pressed="true"]{background:var(--pink-l);border-color:var(--accent);color:var(--accent);font-weight:600}
+.remind-check{flex:0 0 auto;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:10px;line-height:1;background:var(--paper)}
+.remind-pill[aria-pressed="true"] .remind-check{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
 .daybar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1.5px dashed var(--line)}
 .daybody{display:flex;flex-direction:column;gap:8px}
 .daybody .icard{background:var(--cell)}

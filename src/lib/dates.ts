@@ -43,6 +43,15 @@ export const duration = (start?: string | null, end?: string | null) => {
 export const isTime = (t: unknown): t is string => typeof t === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
 export const isDate = (t: unknown): t is string => typeof t === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t);
 
+/** True kalau tanggal+jam jadwal sudah lewat dibanding 'now'. Jadwal tanpa jam dianggap belum lewat (baru lewat saat ganti hari, lewat todayKey). */
+export function isPastEvent(e: { date: string; start_time?: string | null }, now: Date): boolean {
+  if (!e.start_time || !isTime(e.start_time)) return false;
+  const d = parseYmd(e.date);
+  const [h, m] = e.start_time.split(':').map(Number);
+  d.setHours(h, m, 0, 0);
+  return d.getTime() < now.getTime();
+}
+
 /** Tanggal 'hari ini' menurut zona waktu tertentu (dipakai di server). */
 export function todayInTz(tz: string): { key: string; weekday: string } {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());

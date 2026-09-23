@@ -96,58 +96,71 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
             {CATEGORIES.map((c) => <option key={c} value={c}>{CAT_ICON[c]} {c === 'Lainnya' ? 'Lainnya (tulis sendiri)' : c}</option>)}
           </select>
         </label>
-        {category === 'Lainnya' && (
+        {category === 'Lainnya' ? (
           <label className="fld"><span>Nama kategori</span>
             <input type="text" maxLength={24} placeholder="Misal: Olahraga" value={catName} onChange={(ev) => setCatName(ev.target.value)} />
           </label>
-        )}
+        ) : <div className="fld-spacer" />}
+
+        <div className="fsec-title span2">Kapan</div>
         <div className="fld span2"><span>Tanggal</span>
           <div className="row">
             <input type="date" value={date} onChange={(ev) => setDate(ev.target.value)} />
-            {([['Hari ini', 0], ['Besok', 1], ['Lusa', 2]] as const).map(([l, n]) => (
-              <button key={l} className="chip" onClick={() => setDate(addDays(ymd(new Date()), n))}>{l}</button>
-            ))}
+            <div className="chipset">
+              {([['Hari ini', 0], ['Besok', 1], ['Lusa', 2]] as const).map(([l, n]) => (
+                <button key={l} type="button" className="chip" onClick={() => setDate(addDays(ymd(new Date()), n))}>{l}</button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="fld span2"><span>Jam</span>
-          <div className="row">
+          <div className="timebox">
             <input type="time" aria-label="Jam mulai" value={start} onChange={(ev) => { setStart(ev.target.value); setEndClearedNotice(false); }} />
             <em>sampai</em>
             <input type="time" aria-label="Jam selesai" value={end} onChange={(ev) => { setEnd(ev.target.value); setEndClearedNotice(false); }} />
           </div>
-          <div className="row">
+          <div className="chipset">
             {([['Pagi', '08:00'], ['Siang', '12:00'], ['Sore', '16:00'], ['Malam', '19:00']] as const).map(([l, t]) => (
-              <button key={l} className="chip" onClick={() => setStart(t)}>{l}</button>
+              <button key={l} type="button" className="chip" onClick={() => setStart(t)}>{l}</button>
             ))}
-            <button className="chip" onClick={() => { setStart(''); setEnd(''); }}>Tanpa jam</button>
+            <button type="button" className="chip" onClick={() => { setStart(''); setEnd(''); }}>Tanpa jam</button>
           </div>
           {endClearedNotice && <small className="hint">Jam selesai harus setelah jam mulai.</small>}
         </div>
+
+        <div className="fsec-title span2">Detail</div>
         <label className="fld span2"><span>Lokasi</span>
           <input type="text" maxLength={200} placeholder="Misal: Kantor, Istora Senayan" value={place} onChange={(ev) => setPlace(ev.target.value)} />
         </label>
         <label className="fld span2"><span>Catatan</span>
           <textarea rows={2} maxLength={500} placeholder="Tulis apa saja yang perlu diingat" value={note} onChange={(ev) => setNote(ev.target.value)} />
         </label>
-        <div className="fld span2"><span>Pengingat</span>
-          <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
-            {REMINDERS.map(([v, l]) => (
-              <button key={v} type="button" className="chip" aria-pressed={remind.includes(v)} onClick={() => toggleRemind(v)}>
-                {remind.includes(v) ? '✓ ' : ''}{l}
-              </button>
-            ))}
+
+        <div className="fsec-title span2">Pengingat</div>
+        <div className="fld span2">
+          <div className="remind-grid">
+            {REMINDERS.map(([v, l]) => {
+              const on = remind.includes(v);
+              return (
+                <button key={v} type="button" className="remind-pill" aria-pressed={on} onClick={() => toggleRemind(v)}>
+                  <span className="remind-check">{on ? '✓' : ''}</span>{l}
+                </button>
+              );
+            })}
           </div>
         </div>
-        <div className="fld"><span>Penanda</span>
-          <div className="row"><button className="chip" aria-pressed={starred} onClick={() => setStarred((s) => !s)}>{starred ? '★' : '☆'} Penting</button></div>
-        </div>
-        <div className="fld span2"><span>Gambar (boleh dikosongkan)</span>
-          <div className="row">
-            <label className="btn small">{busy ? 'Mengunggah…' : 'Pilih gambar'}
-              <input type="file" accept="image/*" hidden disabled={busy} onChange={(ev) => { pickImage(ev.target.files?.[0]); ev.target.value = ''; }} />
-            </label>
-            {image && <div className="prev" style={{ backgroundImage: `url("${image}")` }} />}
-            {image && <button className="chip" onClick={() => setImage('')}>Hapus gambar</button>}
+
+        <div className="fsec-title span2">Lainnya</div>
+        <div className="fld span2">
+          <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+            <button type="button" className="chip star-chip" aria-pressed={starred} onClick={() => setStarred((s) => !s)}>{starred ? '★' : '☆'} Penting</button>
+            <div className="row" style={{ gap: 8 }}>
+              {image && <div className="prev" style={{ backgroundImage: `url("${image}")` }} />}
+              <label className="btn small">{busy ? 'Mengunggah…' : image ? 'Ganti gambar' : 'Pilih gambar'}
+                <input type="file" accept="image/*" hidden disabled={busy} onChange={(ev) => { pickImage(ev.target.files?.[0]); ev.target.value = ''; }} />
+              </label>
+              {image && <button type="button" className="chip" onClick={() => setImage('')}>Hapus</button>}
+            </div>
           </div>
         </div>
       </div>

@@ -58,17 +58,26 @@ export async function GET(req: NextRequest) {
     const labels: Record<string, string> = {
       '5m': '5 menit', '15m': '15 menit', '30m': '30 menit', '1h': '1 jam', '3h': '3 jam', '1d': '1 hari', '3d': '3 hari',
     };
+    const sentOk: string[] = [];
     for (const r of toSend) {
-      await resend.emails.send({
-        from: 'waktukuplan <reminder@resend.dev>',
+      const { error: sendError } = await resend.emails.send({
+        from: 'waktukuplan <pengingat@waktukuplan.my.id>',
         to: email,
         subject: `Pengingat: ${ev.title}`,
         html: `<p>Jadwal <b>${ev.title}</b> akan dimulai jam ${ev.start_time} (${labels[r]} lagi).</p>`,
       });
+      if (sendError) {
+        // Jangan tandai sudah terkirim kalau gagal, biar dicoba lagi di run berikutnya.
+        console.error(`[cron/reminders] gagal kirim ke ${email}:`, sendError.message);
+        continue;
+      }
+      sentOk.push(r);
       sent++;
     }
 
-    await admin.from('events').update({ reminders_sent: [...alreadySent, ...toSend] }).eq('id', ev.id);
+    if (sentOk.length) {
+      await admin.from('events').update({ reminders_sent: [...alreadySent, ...sentOk] }).eq('id', ev.id);
+    }
   }
 
   return NextResponse.json({ ok: true, checked: events?.length ?? 0, sent });

@@ -4,14 +4,14 @@ import { isDate, isTime } from '@/lib/dates';
 import type { EventRow, NoteRow } from '@/lib/types';
 
 /**
- * Fungsi-fungsi inti untuk mengubah data jadwal, dipakai oleh AI (web) dan bot WhatsApp.
+ * Fungsi-fungsi inti untuk mengubah data jadwal, dipakai oleh AI (web).
  * Setiap query SELALU memfilter user_id, jadi aman dipakai juga dengan admin client (yang melewati RLS).
  */
 
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 export async function createEvent(
-  sb: SupabaseClient, userId: string, input: Record<string, unknown>, source: 'ai' | 'wa',
+  sb: SupabaseClient, userId: string, input: Record<string, unknown>, source: 'ai',
 ): Promise<EventRow> {
   const title = str(input.title, 200);
   if (!title) throw new Error('title wajib diisi');

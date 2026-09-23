@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
  * Hook generik untuk satu tabel milik user:
  *  - memuat semua baris (difilter user_id)
  *  - update langsung di layar (optimistic), lalu disimpan ke Supabase
- *  - mendengarkan Realtime: perubahan dari WhatsApp/AI muncul tanpa refresh
+ *  - mendengarkan Realtime: perubahan dari AI atau tab lain muncul tanpa refresh
  */
 export function useTable<T extends { id: string }>(table: string, userId: string, orderBy?: string) {
   const sb = useMemo(() => createClient(), []);

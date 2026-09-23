@@ -4,7 +4,7 @@ import type { AgentResult, EventRow, UndoOp } from '@/lib/types';
 import { addNote, createEvent, deleteEvent, listEvents, updateEvent } from './eventService';
 
 /**
- * "Otak" AI. Pesan user (dari web atau WhatsApp) dikirim ke Gemini (Google AI Studio) bersama
+ * "Otak" AI. Pesan user (dari web) dikirim ke Gemini (Google AI Studio) bersama
  * daftar tool. Gemini memilih tool mana yang dipanggil, kode di bawah menjalankannya ke database,
  * lalu hasilnya dikembalikan ke Gemini sampai dia memberi jawaban akhir.
  * Memakai REST API langsung (fetch), jadi tidak butuh library tambahan.
@@ -116,11 +116,11 @@ const SAFETY_SETTINGS = [
 
 const BLOCKED_REPLY = 'Maaf, aku cuma bisa bantu urusan jadwal dan catatan di sini ya, nggak bisa bantu yang itu.';
 
-function systemPrompt(tz: string, source: 'web' | 'wa') {
+function systemPrompt(tz: string) {
   const t = todayInTz(tz);
   return [
     'Kamu adalah asisten di aplikasi jurnal jadwal bernama "waktukuplan". Tugasmu mengubah pesan user menjadi aksi pada kalender mereka dengan memanggil tool.',
-    `Hari ini: ${t.weekday}, ${t.key}. Zona waktu user: ${tz}. Pesan datang dari ${source === 'wa' ? 'WhatsApp' : 'web'}.`,
+    `Hari ini: ${t.weekday}, ${t.key}. Zona waktu user: ${tz}. Pesan datang dari web.`,
     'Hitung tanggal relatif (besok, lusa, Jumat depan, minggu depan) dari hari ini. Jam pakai format 24 jam ("jam 7 malam" = 19:00).',
     'Jika tanggal tidak jelas, JANGAN menebak: tanyakan singkat ke user tanpa memanggil tool.',
     'Jangan mengarang id. Untuk hapus/ubah/selesaikan, panggil list_events dulu.',
@@ -175,9 +175,9 @@ async function callGemini(system: string, contents: Content[]): Promise<Content 
 
 
 export async function runAgent(o: {
-  sb: SupabaseClient; userId: string; message: string; source: 'web' | 'wa'; timezone: string;
+  sb: SupabaseClient; userId: string; message: string; timezone: string;
 }): Promise<AgentResult> {
-  const { sb, userId, source, timezone } = o;
+  const { sb, userId, timezone } = o;
   const message = o.message.slice(0, 600);
 
   const changes: string[] = [];
@@ -194,7 +194,7 @@ export async function runAgent(o: {
     const today = todayInTz(timezone).key;
     switch (name) {
       case 'add_event': {
-        const e = await createEvent(sb, userId, input, source === 'wa' ? 'wa' : 'ai');
+        const e = await createEvent(sb, userId, input, 'ai');
         addedIds.push(e.id);
         undo.push({ op: 'delete_event', id: e.id });
         firstDate = firstDate ?? e.date;
@@ -245,7 +245,7 @@ export async function runAgent(o: {
   let reply = '';
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
-    const content = await callGemini(systemPrompt(timezone, source), contents);
+    const content = await callGemini(systemPrompt(timezone), contents);
     if (!content) break; // jawaban kosong / diblokir
     contents.push(content);
 
