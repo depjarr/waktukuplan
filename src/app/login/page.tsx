@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Icon } from '@/components/Icon';
 import { ThemePicker } from '@/components/ThemePicker';
 import { createClient } from '@/lib/supabase/client';
+import { validatePassword } from '@/lib/password';
 
 type Mode = 'in' | 'up' | 'forgot';
 
@@ -30,18 +31,25 @@ export default function LoginPage() {
       if (error) setMsg('Email atau kata sandi salah.');
       else { router.push('/'); router.refresh(); }
     } else if (mode === 'up') {
+      // Aturan kekuatan password hanya diterapkan saat DAFTAR, bukan saat
+      // masuk — supaya user lama yang password-nya belum memenuhi aturan
+      // baru ini tetap bisa login seperti biasa.
+      const pwError = validatePassword(password);
+      if (pwError) { setMsg(pwError); setBusy(false); return; }
       const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}/auth/callback` } });
       if (error) setMsg(error.message);
       else if (data.session) { router.push('/'); router.refresh(); }
       else setMsg('Cek emailmu untuk konfirmasi, lalu masuk.');
     } else {
       // mode === 'forgot': kirim link reset kata sandi ke email.
-      // redirectTo langsung ke /reset-password (BUKAN lewat /auth/callback) —
-      // penukaran kode reset harus terjadi di browser yang sama persis dengan
-      // yang meminta reset, jadi biarkan Supabase client yang menanganinya
-      // otomatis di halaman itu lewat event PASSWORD_RECOVERY.
+      // redirectTo di sini cuma fallback/allowlist — link yang benar-benar
+      // dipakai user dikontrol lewat template email di Supabase Dashboard,
+      // yang diarahkan ke /reset-password/confirm (halaman perantara yang
+      // baru memverifikasi token saat tombolnya diklik manusia, bukan saat
+      // halaman dibuka otomatis oleh email security scanner). Lihat komentar
+      // di src/app/reset-password/confirm/page.tsx untuk detail & template.
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/reset-password`,
+        redirectTo: `${location.origin}/reset-password/confirm`,
       });
       if (error) setMsg(error.message);
       else setMsg('Link reset kata sandi sudah dikirim, cek emailmu.');
@@ -67,7 +75,7 @@ export default function LoginPage() {
           <label className="fld"><span>Kata sandi</span>
             <div className="pwd-wrap">
               <input type={showPw ? 'text' : 'password'} autoComplete={mode === 'in' ? 'current-password' : 'new-password'}
-                minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+                minLength={mode === 'up' ? 8 : 6} value={password} onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} />
               <button type="button" className="pwd-eye" onClick={() => setShowPw((v) => !v)}
                 aria-label={showPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}>
@@ -75,6 +83,10 @@ export default function LoginPage() {
               </button>
             </div>
           </label>
+        )}
+
+        {mode === 'up' && (
+          <p className="auth-hint">Minimal 8 karakter, 1 huruf besar, dan 1 karakter unik (misalnya # * &amp;).</p>
         )}
 
         {mode === 'in' && (
@@ -86,7 +98,7 @@ export default function LoginPage() {
         {msg && <p className="auth-msg" role="alert">{msg}</p>}
 
         <button className="btn primary" onClick={submit}
-          disabled={busy || !email || (mode !== 'forgot' && password.length < 6)}>
+          disabled={busy || !email || (mode === 'in' && password.length < 6) || (mode === 'up' && password.length < 8)}>
           {mode === 'in' ? 'Masuk' : mode === 'up' ? 'Daftar' : 'Kirim link reset'}
         </button>
 

@@ -7,6 +7,7 @@
 .auth-card .fld>span{font-size:13px;font-weight:500;color:var(--ink2)}
 .auth-card input{border:1.5px solid var(--line);background:var(--cell);border-radius:var(--r1);padding:10px 12px;width:100%}
 .auth-msg{margin:0;color:var(--accent);font-size:14px}
+.auth-hint{margin:-6px 0 4px;color:var(--ink2);font-size:13px}
 .auth-card .btn{justify-content:center;padding:11px 15px}
 .linkbtn{border:0;background:transparent;color:var(--accent);text-decoration:underline;padding:4px}
 

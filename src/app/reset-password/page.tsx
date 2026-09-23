@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/components/Icon';
 import { ThemePicker } from '@/components/ThemePicker';
 import { createClient } from '@/lib/supabase/client';
+import { validatePassword } from '@/lib/password';
 
 /**
  * Halaman set kata sandi baru. Dituju langsung oleh link reset dari email
@@ -57,7 +58,8 @@ export default function ResetPasswordPage() {
 
   async function submit() {
     setMsg('');
-    if (password.length < 6) return setMsg('Kata sandi minimal 6 karakter.');
+    const pwError = validatePassword(password);
+    if (pwError) return setMsg(pwError);
     if (password !== confirm) return setMsg('Konfirmasi kata sandi tidak sama.');
     setBusy(true);
     const { error } = await sb.auth.updateUser({ password });
@@ -102,10 +104,11 @@ export default function ResetPasswordPage() {
       <div className="auth-card">
         <h1>waktukuplan</h1>
         <p className="auth-sub">Buat kata sandi baru</p>
+        <p className="auth-hint">Minimal 8 karakter, 1 huruf besar, dan 1 karakter unik (misalnya # * &amp;).</p>
 
         <label className="fld"><span>Kata sandi baru</span>
           <div className="pwd-wrap">
-            <input type={showPw ? 'text' : 'password'} autoComplete="new-password" minLength={6}
+            <input type={showPw ? 'text' : 'password'} autoComplete="new-password" minLength={8}
               value={password} onChange={(e) => setPassword(e.target.value)} />
             <button type="button" className="pwd-eye" onClick={() => setShowPw((v) => !v)}
               aria-label={showPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}>
@@ -128,7 +131,7 @@ export default function ResetPasswordPage() {
 
         {msg && <p className="auth-msg" role="alert">{msg}</p>}
 
-        <button className="btn primary" onClick={submit} disabled={busy || password.length < 6 || !confirm}>
+        <button className="btn primary" onClick={submit} disabled={busy || password.length < 8 || !confirm}>
           Simpan kata sandi baru
         </button>
       </div>
