@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { Resend } from 'resend';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+// Konfigurasi agar rute tidak di-cache dan memiliki batas waktu eksekusi yang cukup di Vercel
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const REMIND_MINUTES: Record<string, number> = {

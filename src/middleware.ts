@@ -5,6 +5,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  const path = request.nextUrl.pathname;
+
+  // FIX: Bypass middleware untuk endpoint cron job agar tidak dicek sesi dan tidak diredirect ke login
+  if (path.startsWith('/api/cron/')) {
+    return response;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -21,7 +28,6 @@ export async function middleware(request: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  const path = request.nextUrl.pathname;
   const isPublic = path.startsWith('/login') || path.startsWith('/auth') || path.startsWith('/reset-password');
 
   if (!user && !isPublic) {
