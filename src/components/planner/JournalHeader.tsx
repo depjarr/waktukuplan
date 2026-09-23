@@ -54,7 +54,7 @@ export function JournalHeader() {
         )}
         <form action="/auth/signout" method="post" className="jlogout-form">
           <button className="jlogout" type="submit" title="Keluar" aria-label="Keluar">
-            <Icon n="logout" size={16} />
+            <Icon n="logout" size={17} />
           </button>
         </form>
       </div>
