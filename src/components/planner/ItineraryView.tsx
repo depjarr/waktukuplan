@@ -1,5 +1,5 @@
 'use client';
-import { DAYNAMES, MSHORT, addDays, parseYmd } from '@/lib/dates';
+import { DAYNAMES, MSHORT, addDays, isPastEvent, parseYmd } from '@/lib/dates';
 import type { EventRow } from '@/lib/types';
 import { EventCard } from './EventCard';
 import { usePlanner } from './PlannerProvider';
@@ -13,7 +13,7 @@ export function EventList({ list, isToday }: { list: EventRow[]; isToday: boolea
   const line = <div key="now" className="nowline">sekarang {hm}</div>;
   list.forEach((e) => {
     if (isToday && !placed && e.kind !== 'text' && e.start_time && e.start_time > hm) { nodes.push(line); placed = true; }
-    nodes.push(<EventCard key={e.id} e={e} />);
+    nodes.push(<EventCard key={e.id} e={e} isPast={isToday && e.kind !== 'text' && isPastEvent(e, n)} />);
   });
   if (isToday && !placed && list.length) nodes.push(line);
   return <>{nodes}</>;
