@@ -12,5 +12,29 @@ export const catLabel = (e: Pick<EventRow, 'category' | 'category_name'>) =>
 export const isCategory = (c: unknown): c is Category => typeof c === 'string' && (CATEGORIES as string[]).includes(c);
 
 export const MONTH_EMOJI = ['🎀', '🍓', '🌱', '🌷', '🌼', '☁️', '🍰', '🎐', '🧸', '🍂', '🍄', '🎄'];
-export const STICKER_EMOJIS = ['🌸', '🌷', '🌼', '🍓', '🍰', '☕', '🧸', '🐻', '🐰', '🐶', '🐱', '🎀', '⭐', '✨', '💗', '🎄', '🎁', '🎂', '🍪', '🥐', '🍑', '🌈', '☁️', '🌙', '🎫', '🎧', '📷', '✈️', '🏖️', '📌', '🧋', '🍡', '🎈', '🍀', '🦋', '🐝', '🌿', '📚', '💌', '🍒'];
+export const STICKER_EMOJIS = [
+  '🌸', '🌷', '🌼', '🍓', '🍰', '☕', '🧸', '🐻', '🐰', '🐶', '🐱', '🎀', '⭐', '✨', '💗', '🎄', '🎁', '🎂', '🍪', '🥐', '🍑', '🌈', '☁️', '🌙', '🎫', '🎧', '📷', '✈️', '🏖️', '📌', '🧋', '🍡', '🎈', '🍀', '🦋', '🐝', '🌿', '📚', '💌', '🍒',
+  // cuaca & musim
+  '🌻', '🌺', '🌹', '🍁', '❄️', '☀️', '🌦️', '💫',
+  // makanan & minuman
+  '🍩', '🧁', '🍭', '🍫', '🥞', '🍯', '🧃', '🍋', '🍇',
+  // hewan lucu
+  '🐹', '🐼', '🐨', '🐣', '🦊', '🦄', '🐢', '🐬',
+  // hobi & produktivitas
+  '🎨', '🎵', '📖', '✏️', '💻', '⏰', '✅',
+  // perasaan & rayaan
+  '💖', '💕', '🥰', '🎉', '🥳', '🧧',
+  // kertas & alat tulis
+  '💬', '💭', '✉️', '📘', '📗', '📓', '📎', '🧩',
+  // rumah & santai (dari selera kamu: sofa, mandi, tanaman)
+  '🛋️', '🫂', '🛁', '🪴', '🧦', '🧺', '🧴', '🪡',
+  // minuman & jajanan hangat (matcha/boba vibes)
+  '🍵', '🥛', '🍶', '🥟', '🥯', '🥠', '🍞', '🍨', '🍦', '🍧', '🫐', '🍈', '🥡', '🥬', '🍚', '🧇',
+  // hewan comfy tambahan
+  '🐈', '🐇', '🦙', '🦔', '🦢', '🐋', '🦕',
+  // jalan-jalan & kendaraan
+  '🚲', '🚋', '🚈', '🚡', '🛵', '⛲', '🏯', '🌊', '🌳', '🍃',
+  // dekorasi & random cute
+  '🌠', '🪩', '🕰️', '🪵', '🫙', '🫧', '💤', '🫶', '🤍', '🤎', '🛒', '🎻', '🏄‍♀️', '🧽', '🪣',
+];
 export const PEN_COLORS = ['#E4708C', '#5B4037', '#5E9E80', '#5B9BD5', '#E7B23E', '#9A82D0', '#FFF2EC'];
