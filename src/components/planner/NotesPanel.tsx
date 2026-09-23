@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { NoteItem } from '@/lib/types';
 import { usePlanner } from './PlannerProvider';
 
@@ -7,11 +7,23 @@ import { usePlanner } from './PlannerProvider';
 export function NotesPanel() {
   const { notes, ui, updateUi, toast } = usePlanner();
   const [draft, setDraft] = useState('');
+  const [justCreated, setJustCreated] = useState<string | null>(null);
   const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
   const elRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
 
   const list = [...notes.rows].sort((a, b) => a.position - b.position);
   const note = list.find((n) => n.id === ui.activeNote) ?? list[0];
+
+  // Catatan baru: langsung fokus & seleksi judulnya biar user tinggal ketik nama sendiri.
+  useEffect(() => {
+    if (justCreated && note?.id === justCreated) {
+      titleRef.current?.focus();
+      titleRef.current?.select();
+      setJustCreated(null);
+    }
+  }, [justCreated, note?.id]);
+
   if (!note) return null;
 
   const float = ui.notes === 'float';
@@ -25,8 +37,11 @@ export function NotesPanel() {
   }
 
   async function newNote() {
-    const row = await notes.insert({ title: 'Catatan baru', items: [], position: list.length });
+    const n = list.length + 1;
+    const title = list.some((x) => x.title === 'Catatan baru') || n > 1 ? `Catatan baru ${n}` : 'Catatan baru';
+    const row = await notes.insert({ title, items: [], position: list.length });
     updateUi({ activeNote: row.id });
+    setJustCreated(row.id);
   }
 
   function deleteNote() {
@@ -74,7 +89,7 @@ export function NotesPanel() {
         </div>
       </div>
 
-      <input className="ntitle" value={note.title} placeholder="Judul catatan" aria-label="Judul catatan"
+      <input ref={titleRef} className="ntitle" value={note.title} placeholder="Judul catatan" aria-label="Judul catatan"
         onChange={(e) => notes.updateDebounced(note.id, { title: e.target.value })} />
 
       <div className="nadd">
