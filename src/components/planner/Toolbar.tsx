@@ -124,6 +124,7 @@ export function Toolbar() {
                     <button className="chip" {...chip(ui.left)} onClick={() => p.updateUi({ left: !ui.left })}>Jam &amp; segera hadir</button>
                     <button className="chip" {...chip(ui.mini)} onClick={() => p.updateUi({ mini: !ui.mini })}>Kalender mini</button>
                     <button className="chip" {...chip(ui.stickers)} onClick={() => p.updateUi({ stickers: !ui.stickers })}>Stiker</button>
+                    <button className="chip" {...chip(ui.mascot !== false)} onClick={() => p.updateUi({ mascot: ui.mascot === false })}>Karakter</button>
                   </div>
                 </div>
               </div>
@@ -207,6 +208,7 @@ export function Toolbar() {
                     <button className="chip" {...chip(ui.left)} onClick={() => p.updateUi({ left: !ui.left })}>Jam &amp; segera hadir</button>
                     <button className="chip" {...chip(ui.mini)} onClick={() => p.updateUi({ mini: !ui.mini })}>Kalender mini</button>
                     <button className="chip" {...chip(ui.stickers)} onClick={() => p.updateUi({ stickers: !ui.stickers })}>Stiker</button>
+                    <button className="chip" {...chip(ui.mascot !== false)} onClick={() => p.updateUi({ mascot: ui.mascot === false })}>Karakter</button>
                   </div>
                 </div>
               );

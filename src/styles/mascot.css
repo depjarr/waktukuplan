@@ -1,0 +1,115 @@
+/*
+  Karakter yang berjalan di bawah layar (Mascot.tsx).
+  Semua warna diambil dari variabel tema, jadi otomatis ikut ganti tema & mode gelap.
+  Ukuran harus sama dengan konstanta SIZE di Mascot.tsx.
+*/
+.mascot{
+  --m-size:64px;
+  position:fixed;left:0;bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  width:var(--m-size);height:var(--m-size);z-index:44;
+  pointer-events:none; /* hanya karakter & balon yang bisa diklik, sisanya tembus */
+  transition-property:transform;transition-timing-function:linear;will-change:transform;
+}
+.mascot-lift{position:relative;width:100%;height:100%;transition-property:transform;will-change:transform}
+.mascot-btn{
+  all:unset;box-sizing:border-box;display:block;width:100%;height:100%;
+  pointer-events:auto;cursor:grab;border-radius:50%;
+  touch-action:none;user-select:none;-webkit-user-select:none; /* supaya bisa diseret di layar sentuh */
+  transform:scaleX(var(--dir,1)); /* menghadap arah jalan */
+  -webkit-tap-highlight-color:transparent;
+}
+.mascot-btn:focus-visible{outline:2.5px solid var(--accent);outline-offset:3px}
+
+.m-sprite{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 100%}
+.m-shadow{fill:color-mix(in srgb,var(--ink) 16%,transparent)}
+.m-body{fill:var(--pink-l);stroke:var(--accent);stroke-width:2.6}
+.m-cheek{fill:var(--pink);opacity:.85}
+.m-eye{fill:var(--ink);transform-box:fill-box;transform-origin:center;animation:m-blink 4.4s infinite}
+.m-mouth{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round}
+.m-mouth-o{fill:var(--ink);stroke:none}
+.m-hair{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.m-limb{fill:var(--accent)}
+.m-arm{fill:none;stroke:var(--accent);stroke-width:3.2;stroke-linecap:round;transform-box:view-box}
+.m-arm-l{transform-origin:14px 42px}
+.m-arm-r{transform-origin:58px 42px}
+.m-leg{transform-box:view-box}
+.m-leg-l{transform-origin:30px 56px}
+.m-leg-r{transform-origin:42px 56px}
+.m-body-g{transform-box:view-box;transform-origin:36px 62px}
+.m-z{font:700 9px/1 var(--ui);fill:var(--accent);transform-box:fill-box;transform-origin:center;transform:scaleX(var(--dir,1))}
+.m-zzz{animation:m-float 2.2s ease-in-out infinite}
+.m-z2{font-size:12px}
+
+/* ===== pose ===== */
+.mascot-btn[data-pose="idle"] .m-body-g{animation:m-breathe 3.2s ease-in-out infinite}
+.mascot-btn[data-pose="walk"] .m-body-g{animation:m-bob .42s ease-in-out infinite}
+.mascot-btn[data-pose="walk"] .m-leg-l{animation:m-step .42s ease-in-out infinite}
+.mascot-btn[data-pose="walk"] .m-leg-r{animation:m-step .42s ease-in-out infinite reverse}
+.mascot-btn[data-pose="walk"] .m-arm-l{animation:m-step .42s ease-in-out infinite reverse}
+.mascot-btn[data-pose="walk"] .m-arm-r{animation:m-step .42s ease-in-out infinite}
+.mascot-btn[data-pose="sleep"] .m-body-g{animation:m-breathe 4.4s ease-in-out infinite}
+.mascot-btn[data-pose="happy"] .m-sprite{animation:m-jump .55s ease-out 3}
+.mascot-btn[data-pose="happy"] .m-arm-l{animation:m-cheer-l .28s ease-in-out infinite alternate}
+.mascot-btn[data-pose="happy"] .m-arm-r{animation:m-cheer-r .28s ease-in-out infinite alternate}
+/* menyapa saat kursor di atasnya */
+.mascot-btn:hover .m-arm-r{animation:m-wave .5s ease-in-out infinite alternate}
+.mascot-btn:hover .m-sprite{animation:m-hop .5s ease-out 1}
+
+/* ===== diangkat / jatuh / mendarat (ditaruh setelah aturan hover supaya menang) ===== */
+.mascot-btn[data-pose="held"]{cursor:grabbing}
+.mascot-btn[data-pose="held"] .m-shadow,.mascot-btn[data-pose="fall"] .m-shadow{opacity:0}
+.mascot-btn[data-pose="held"] .m-sprite{transform-origin:50% 8%;animation:m-dangle 1.1s ease-in-out infinite}
+.mascot-btn[data-pose="held"] .m-body-g,.mascot-btn[data-pose="fall"] .m-body-g{animation:none}
+.mascot-btn[data-pose="held"] .m-leg-l{animation:m-kick .7s ease-in-out infinite}
+.mascot-btn[data-pose="held"] .m-leg-r{animation:m-kick .7s ease-in-out infinite reverse}
+.mascot-btn[data-pose="held"] .m-arm-l,.mascot-btn[data-pose="fall"] .m-arm-l{animation:m-flail-l .3s ease-in-out infinite alternate}
+.mascot-btn[data-pose="held"] .m-arm-r,.mascot-btn[data-pose="fall"] .m-arm-r{animation:m-flail-r .3s ease-in-out infinite alternate}
+.mascot-btn[data-pose="fall"] .m-sprite{animation:none}
+.mascot-btn[data-pose="land"] .m-sprite{animation:m-squash .6s ease-out 1}
+@keyframes m-dangle{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@keyframes m-kick{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(16deg)}}
+@keyframes m-flail-l{from{transform:rotate(38deg)}to{transform:rotate(72deg)}}
+@keyframes m-flail-r{from{transform:rotate(-38deg)}to{transform:rotate(-72deg)}}
+@keyframes m-squash{0%{transform:scale(1.18,.72)}35%{transform:scale(.94,1.1)}65%{transform:scale(1.04,.97)}100%{transform:scale(1,1)}}
+
+@keyframes m-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes m-breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.02,.97)}}
+@keyframes m-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes m-step{0%,100%{transform:rotate(-26deg)}50%{transform:rotate(26deg)}}
+@keyframes m-jump{0%,100%{transform:translateY(0)}45%{transform:translateY(-16px)}}
+@keyframes m-hop{0%{transform:translateY(0)}40%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+@keyframes m-wave{from{transform:rotate(-8deg)}to{transform:rotate(-58deg)}}
+@keyframes m-cheer-l{from{transform:rotate(0)}to{transform:rotate(58deg)}}
+@keyframes m-cheer-r{from{transform:rotate(0)}to{transform:rotate(-58deg)}}
+@keyframes m-float{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(-4px);opacity:1}}
+
+/* ===== balon bicara ===== */
+.m-bubble{
+  position:absolute;bottom:calc(100% + 10px);width:max-content;
+  max-width:min(240px,calc(100vw - 24px));pointer-events:auto;
+  background:var(--paper);color:var(--ink);border:1.5px solid var(--accent);border-radius:var(--r2);
+  padding:10px 12px;box-shadow:var(--shadow);font:400 14px/1.4 var(--ui);
+  animation:m-pop .22s ease-out;transform-origin:50% 100%;
+}
+.m-bubble p{margin:0}
+.m-bubble::after{
+  content:"";position:absolute;top:100%;width:10px;height:10px;background:var(--paper);
+  border:1.5px solid var(--accent);border-top:0;border-left:0;transform:translateY(-5px) rotate(45deg);
+}
+.m-bubble[data-align="center"]{left:50%;margin-left:0;translate:-50% 0}
+.m-bubble[data-align="center"]::after{left:calc(50% - 5px)}
+.m-bubble[data-align="left"]{left:0}
+.m-bubble[data-align="left"]::after{left:calc(32px - 5px)}
+.m-bubble[data-align="right"]{right:0}
+.m-bubble[data-align="right"]::after{right:calc(32px - 5px)}
+.m-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.m-hide{all:unset;cursor:pointer;font-size:12px;color:var(--ink2);text-decoration:underline;padding:2px 4px;margin-left:auto}
+.m-hide:hover{color:var(--ink)}
+.m-hide:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@keyframes m-pop{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
+
+@media (prefers-reduced-motion:reduce){
+  .mascot,.mascot-lift{transition:none!important}
+  .mascot *,.m-bubble{animation:none!important}
+}
+@media print{.mascot{display:none}}

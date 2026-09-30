@@ -98,6 +98,8 @@ export interface UiSettings {
   font?: FontPref;
   journalName?: string;
   headerImage?: string | null;
+  /** false = karakter yang berjalan di bawah layar disembunyikan. Kosong/true = tampil. */
+  mascot?: boolean;
 }
 export const DEFAULT_UI: UiSettings = {
   notes: 'dock', left: true, mini: true, stickers: true, nCheck: true, nx: null, ny: null, activeNote: null,

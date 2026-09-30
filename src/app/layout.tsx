@@ -8,6 +8,7 @@ import '@/styles/itinerary.css';
 import '@/styles/panels.css';
 import '@/styles/dialogs.css';
 import '@/styles/auth.css';
+import '@/styles/mascot.css';
 
 export const metadata: Metadata = {
   title: 'waktukuplan',

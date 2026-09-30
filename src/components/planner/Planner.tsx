@@ -10,6 +10,7 @@ import { EventDialog } from './EventDialog';
 import { ItineraryView } from './ItineraryView';
 import { JournalHeader } from './JournalHeader';
 import { LeftPanel } from './LeftPanel';
+import { Mascot } from './Mascot';
 import { MonthGrid } from './MonthGrid';
 import { MonthStrip } from './MonthStrip';
 import { NotesPanel } from './NotesPanel';
@@ -44,6 +45,7 @@ function Layout() {
       <AskDialog />
       <AiDialog />
       <Toast />
+      <Mascot />
     </div>
   );
 }
