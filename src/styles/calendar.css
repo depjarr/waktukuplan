@@ -26,8 +26,10 @@
 .cell.today{border-color:var(--pink-d);border-width:2px;background:var(--pink-l)}
 .cell:hover{border-color:var(--pink-d)}
 .chead{display:flex;align-items:center;justify-content:space-between}
-.num{font:500 13px var(--ui);color:var(--ink2);min-width:22px;height:22px;border-radius:var(--r1);display:grid;place-items:center}
+.num{font:500 13px var(--ui);color:var(--ink2);min-width:22px;height:22px;border-radius:50%;display:grid;place-items:center;margin:3px 0 0 3px}
 .today .num{background:var(--accent);color:var(--on-accent)}
+/* bulatan bintang: ada jadwal penting di tanggal ini */
+.num.star{outline:2px solid var(--pink-d);outline-offset:2px;font-weight:700}
 .cnt{font-size:11px;background:var(--accent);color:var(--on-accent);border-radius:var(--r1);padding:0 7px;font-weight:500}
 .cbody{display:flex;flex-direction:column;gap:3px;min-width:0}
 .ev{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:5px;width:100%;font:400 16px/1.1 var(--hand);color:var(--ink);border-radius:var(--r1);padding:2px 5px;min-width:0}

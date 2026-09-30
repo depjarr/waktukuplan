@@ -26,9 +26,11 @@ export function MiniCalendar() {
         {Array.from({ length: dim }, (_, i) => {
           const d = i + 1;
           const key = `${y}-${pad(m + 1)}-${pad(d)}`;
-          const has = (byDate[key] ?? []).length > 0;
+          const dayList = byDate[key] ?? [];
+          const has = dayList.length > 0;
+          const star = dayList.some((e) => e.starred);
           return (
-            <button key={key} className={`md${key === todayKey ? ' today' : ''}${has ? ' has' : ''}`} aria-label={`${d} ${MONTHS[m]}`}
+            <button key={key} className={`md${key === todayKey ? ' today' : ''}${has ? ' has' : ''}${star ? ' star' : ''}`} aria-label={`${d} ${MONTHS[m]}`}
               onClick={() => { gotoMonth(y, m); openDay(key); }}>{d}</button>
           );
         })}

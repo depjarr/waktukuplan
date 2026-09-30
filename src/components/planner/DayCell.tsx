@@ -92,12 +92,13 @@ export function DayCell({ date, dayNum, out, col, list }: {
 }) {
   const { todayKey, view, openDay } = usePlanner();
   const { run, uploadToDate, fileRef } = useDayActions();
+  const starred = list.some((e) => e.starred);
   const cls = `cell${out ? ' out' : ''}${date === todayKey ? ' today' : ''}${col === 0 ? ' col0' : ''}${col === 6 ? ' col6' : ''}`;
 
   return (
     <div className={cls} data-date={date} onClick={() => { if (view.tool === 'select') openDay(date); }}>
       <div className="chead">
-        <span className="num">{dayNum}</span>
+        <span className={`num${starred ? ' star' : ''}`} title={starred ? 'Ada jadwal penting' : undefined}>{dayNum}</span>
         {list.length > 1 && <span className="cnt" aria-label={`${list.length} jadwal`}>{list.length}</span>}
       </div>
       <div className="cbody"><CellEvents list={list} /></div>
