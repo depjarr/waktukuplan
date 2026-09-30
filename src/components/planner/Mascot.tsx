@@ -21,10 +21,11 @@ import { usePlanner } from './PlannerProvider';
 type Pose = 'idle' | 'walk' | 'sleep' | 'happy' | 'held' | 'fall' | 'land';
 interface Bubble { text: string; actions: boolean }
 
-const SIZE = 64; // px, harus sama dengan --m-size di mascot.css
+const SIZE = 96; // px, harus sama dengan --m-size di mascot.css
 const SPEED = 55; // px per detik
 const MARGIN = 12;
 const GRAVITY = 2400; // px/s^2, dipakai untuk menghitung lama jatuh
+const GREET_MS = 15000; // lama sapaan awal tampil
 const DRAG_THRESHOLD = 6; // px; gerak lebih kecil dari ini dianggap klik biasa
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
@@ -118,6 +119,7 @@ export function Mascot() {
   const suppressClick = useRef(false);
   const drag = useRef<{ id: number; sx: number; sy: number; gx: number; gy: number; groundTop: number; active: boolean } | null>(null);
   const fallTimer = useRef<number | undefined>(undefined);
+  const hintAt = useRef(0); // kapan petunjuk hover terakhir tampil
   const busyUntil = useRef(0); // sedang berjalan sampai kapan (ms epoch)
   const hovering = useRef(false);
   const bubbleTimer = useRef<number | undefined>(undefined);
@@ -204,12 +206,12 @@ export function Mascot() {
     } else {
       later(() => {
         setDur(0);
-        const ms = walkTo(Math.min(maxX(), Math.max(MARGIN, window.innerWidth * 0.28)));
+        const ms = walkTo(Math.min(maxX(), Math.max(MARGIN, Math.min(window.innerWidth * 0.22, 260))));
         later(() => {
-          if (!live.current.aiDlg) showBubble(live.current.greet(), { actions: true, ms: 9000 });
+          if (!live.current.aiDlg) showBubble(live.current.greet(), { actions: true, ms: GREET_MS });
           wander();
         }, ms + 200);
-      }, 1400); // beri waktu pengaturan tampilan (ui.mascot) selesai dimuat
+      }, 900); // beri waktu pengaturan tampilan (ui.mascot) selesai dimuat
     }
 
     return () => { dead = true; timers.forEach(window.clearTimeout); };
@@ -234,6 +236,11 @@ export function Mascot() {
   function onEnter() {
     hovering.current = true;
     if (dragging.current) return;
+    // Petunjuk singkat saat kursor diarahkan (maks. sekali per 20 detik, tidak menimpa sapaan)
+    if (!live.current.bubble && !live.current.aiDlg && Date.now() - hintAt.current > 20_000) {
+      hintAt.current = Date.now();
+      showBubble('Klik aku untuk tanya AI ✨ Angkat aku juga boleh!', { actions: false, ms: 3200 });
+    }
     // Kalau lagi berjalan, berhenti di tempat supaya gampang diklik.
     if (Date.now() < busyUntil.current && rootRef.current) {
       const left = Math.round(rootRef.current.getBoundingClientRect().left);
