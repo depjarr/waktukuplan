@@ -1,9 +1,43 @@
+/*
+  ============================================================
+  MASCOT.CSS
+  ============================================================
+
+  Cocok dengan Mascot.tsx / Tika.
+
+  Karakter:
+  - rambut panjang
+  - poni depan
+  - mata besar
+  - pipi pink
+  - dress pink
+  - jepit rambut
+  - bunga rambut
+  - tangan kosong
+  - tanpa stroberi
+
+  Ukuran SVG:
+  96 x 96
+
+  Warna rambut dikontrol oleh:
+  --m-hair
+*/
+
+
+/* ============================================================
+   MASCOT CONTAINER
+   ============================================================ */
+
 .mascot {
   --m-size: 96px;
 
   position: fixed;
+
   left: 0;
-  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+
+  bottom: calc(
+    10px + env(safe-area-inset-bottom, 0px)
+  );
 
   width: var(--m-size);
   height: var(--m-size);
@@ -19,9 +53,9 @@
 }
 
 
-/* =========================================================
-   LIFT / DRAG CONTAINER
-   ========================================================= */
+/* ============================================================
+   LIFT CONTAINER
+   ============================================================ */
 
 .mascot-lift {
   position: relative;
@@ -36,9 +70,9 @@
 }
 
 
-/* =========================================================
-   MAIN CHARACTER BUTTON
-   ========================================================= */
+/* ============================================================
+   CHARACTER BUTTON
+   ============================================================ */
 
 .mascot-btn {
   all: unset;
@@ -57,6 +91,7 @@
   border-radius: 50%;
 
   touch-action: none;
+
   user-select: none;
   -webkit-user-select: none;
 
@@ -75,9 +110,9 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    SVG
-   ========================================================= */
+   ============================================================ */
 
 .m-sprite {
   display: block;
@@ -91,7 +126,10 @@
 }
 
 
-/* Bayangan kaki */
+/* ============================================================
+   SHADOW
+   ============================================================ */
+
 .m-shadow {
   fill: color-mix(
     in srgb,
@@ -101,24 +139,286 @@
 }
 
 
-/* =========================================================
-   BODY GROUP
-   ========================================================= */
+/* ============================================================
+   SKIN
+   ============================================================ */
 
-/*
-  SVG baru memakai viewBox 96x96.
-  Titik pusat badan sekitar 48,82.
-*/
+.m-skin {
+  fill: #fbdcc4;
+}
 
-.m-body-g {
-  transform-box: view-box;
-  transform-origin: 48px 82px;
+.m-face {
+  fill: #fbdcc4;
+
+  stroke: color-mix(
+    in srgb,
+    var(--accent) 45%,
+    transparent
+  );
+
+  stroke-width: .8;
 }
 
 
-/* =========================================================
-   ARMS
-   ========================================================= */
+/* ============================================================
+   HAIR
+   ============================================================ */
+
+/*
+  PENTING:
+
+  Mascot.tsx memberikan:
+
+  --m-hair: look.color
+
+  Jadi rambut BELAKANG dan PONI harus sama-sama memakai
+  var(--m-hair).
+
+  Ini yang membuat pilihan warna rambut bekerja.
+*/
+
+.m-hair-b,
+.m-hair-f {
+  fill: var(--m-hair, #3a2622);
+
+  stroke: color-mix(
+    in srgb,
+    var(--accent) 55%,
+    transparent
+  );
+
+  stroke-width: .8;
+
+  stroke-linejoin: round;
+}
+
+
+/*
+  Poni depan tidak memakai outline tambahan.
+*/
+
+.m-hair-f {
+  stroke: none;
+}
+
+
+/* ============================================================
+   FACE
+   ============================================================ */
+
+.m-cheek {
+  fill: var(--pink);
+
+  opacity: .7;
+}
+
+
+/* ============================================================
+   EYES
+   ============================================================ */
+
+.m-eye {
+  fill: #2a1a17;
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  animation: m-blink 4.4s infinite;
+}
+
+.m-glint {
+  fill: #fff;
+}
+
+.m-lash {
+  fill: none;
+
+  stroke: #2a1a17;
+
+  stroke-width: 1.2;
+
+  stroke-linecap: round;
+}
+
+
+/* ============================================================
+   MOUTH
+   ============================================================ */
+
+.m-mouth {
+  fill: none;
+
+  stroke: #7b3f3a;
+
+  stroke-width: 1.7;
+
+  stroke-linecap: round;
+}
+
+.m-mouth-o {
+  fill: #7b3f3a;
+
+  stroke: none;
+}
+
+
+/* ============================================================
+   SWEAT
+   ============================================================ */
+
+.m-sweat {
+  fill: #a9d6f5;
+
+  stroke: none;
+}
+
+
+/* ============================================================
+   SOCKS
+   ============================================================ */
+
+.m-sock {
+  fill: #fff7f2;
+
+  stroke: color-mix(
+    in srgb,
+    var(--accent) 40%,
+    transparent
+  );
+
+  stroke-width: .5;
+}
+
+
+/* ============================================================
+   SHOES
+   ============================================================ */
+
+.m-shoe {
+  fill: var(--accent);
+}
+
+
+/* ============================================================
+   DRESS
+   ============================================================ */
+
+.m-dress {
+  fill: var(--pink-l);
+
+  stroke: var(--accent);
+
+  stroke-width: 1.5;
+
+  stroke-linejoin: round;
+}
+
+
+/* ============================================================
+   DRESS LACE
+   ============================================================ */
+
+.m-lace {
+  fill: none;
+
+  stroke: var(--paper);
+
+  stroke-width: 1.1;
+
+  stroke-linecap: round;
+
+  stroke-dasharray: 1.5 1.3;
+}
+
+
+/* ============================================================
+   DRESS POLKA DOT
+   ============================================================ */
+
+.m-dot {
+  fill: var(--paper);
+}
+
+
+/* ============================================================
+   SLEEVES
+   ============================================================ */
+
+.m-sleeve {
+  fill: var(--pink-l);
+
+  stroke: var(--accent);
+
+  stroke-width: 1.3;
+}
+
+
+/* ============================================================
+   ARM SKIN
+   ============================================================ */
+
+.m-arm-skin {
+  fill: none;
+
+  stroke: #fbdcc4;
+
+  stroke-width: 3.4;
+
+  stroke-linecap: round;
+}
+
+
+/* ============================================================
+   HAIR CLIP
+   ============================================================ */
+
+.m-clip circle {
+  fill: var(--paper);
+
+  stroke: var(--accent);
+
+  stroke-width: 1.3;
+}
+
+.m-clip path {
+  fill: none;
+
+  stroke: var(--accent);
+
+  stroke-width: 1;
+
+  stroke-linecap: round;
+}
+
+
+/* ============================================================
+   BOW
+   ============================================================ */
+
+.m-bow path,
+.m-bow circle {
+  fill: var(--accent);
+
+  stroke: var(--paper);
+
+  stroke-width: .6;
+
+  stroke-linejoin: round;
+}
+
+
+/* ============================================================
+   TIE / ACCESSORY
+   ============================================================ */
+
+.m-tie {
+  fill: var(--accent);
+}
+
+
+/* ============================================================
+   ARM TRANSFORM
+   ============================================================ */
 
 .m-arm {
   transform-box: view-box;
@@ -133,9 +433,9 @@
 }
 
 
-/* =========================================================
-   LEGS
-   ========================================================= */
+/* ============================================================
+   LEG TRANSFORM
+   ============================================================ */
 
 .m-leg {
   transform-box: view-box;
@@ -150,9 +450,20 @@
 }
 
 
-/* =========================================================
-   SLEEPING ZZZ
-   ========================================================= */
+/* ============================================================
+   BODY TRANSFORM
+   ============================================================ */
+
+.m-body-g {
+  transform-box: view-box;
+
+  transform-origin: 48px 82px;
+}
+
+
+/* ============================================================
+   SLEEP Z
+   ============================================================ */
 
 .m-z {
   font: 700 9px/1 var(--ui);
@@ -160,6 +471,7 @@
   fill: var(--accent);
 
   transform-box: fill-box;
+
   transform-origin: center;
 
   transform: scaleX(var(--dir, 1));
@@ -174,94 +486,135 @@
 }
 
 
-/* =========================================================
-   POSE: IDLE
-   ========================================================= */
+/* ============================================================
+   IDLE
+   ============================================================ */
 
 .mascot-btn[data-pose="idle"] .m-body-g {
-  animation: m-breathe 3.2s ease-in-out infinite;
+  animation:
+    m-breathe
+    3.2s
+    ease-in-out
+    infinite;
 }
 
 
-/* =========================================================
-   POSE: WALK
-   ========================================================= */
+/* ============================================================
+   WALK
+   ============================================================ */
 
 .mascot-btn[data-pose="walk"] .m-body-g {
-  animation: m-bob .42s ease-in-out infinite;
+  animation:
+    m-bob
+    .42s
+    ease-in-out
+    infinite;
 }
 
 .mascot-btn[data-pose="walk"] .m-leg-l {
-  animation: m-step .42s ease-in-out infinite;
+  animation:
+    m-step
+    .42s
+    ease-in-out
+    infinite;
 }
 
 .mascot-btn[data-pose="walk"] .m-leg-r {
-  animation: m-step .42s ease-in-out infinite reverse;
+  animation:
+    m-step
+    .42s
+    ease-in-out
+    infinite
+    reverse;
 }
 
 .mascot-btn[data-pose="walk"] .m-arm-l {
-  animation: m-step .42s ease-in-out infinite reverse;
+  animation:
+    m-step
+    .42s
+    ease-in-out
+    infinite
+    reverse;
 }
 
 .mascot-btn[data-pose="walk"] .m-arm-r {
-  animation: m-step .42s ease-in-out infinite;
+  animation:
+    m-step
+    .42s
+    ease-in-out
+    infinite;
 }
 
 
-/* =========================================================
-   POSE: SLEEP
-   ========================================================= */
+/* ============================================================
+   SLEEP
+   ============================================================ */
 
 .mascot-btn[data-pose="sleep"] .m-body-g {
-  animation: m-breathe 4.4s ease-in-out infinite;
+  animation:
+    m-breathe
+    4.4s
+    ease-in-out
+    infinite;
 }
 
 
-/* =========================================================
-   POSE: HAPPY
-   ========================================================= */
+/* ============================================================
+   HAPPY
+   ============================================================ */
 
 .mascot-btn[data-pose="happy"] .m-sprite {
-  animation: m-jump .55s ease-out 3;
+  animation:
+    m-jump
+    .55s
+    ease-out
+    3;
 }
 
 .mascot-btn[data-pose="happy"] .m-arm-l {
-  animation: m-cheer-l .28s ease-in-out infinite alternate;
+  animation:
+    m-cheer-l
+    .28s
+    ease-in-out
+    infinite
+    alternate;
 }
 
 .mascot-btn[data-pose="happy"] .m-arm-r {
-  animation: m-cheer-r .28s ease-in-out infinite alternate;
+  animation:
+    m-cheer-r
+    .28s
+    ease-in-out
+    infinite
+    alternate;
 }
 
 
-/* =========================================================
+/* ============================================================
    HOVER / SAPAAN
-   ========================================================= */
+   ============================================================ */
 
 .mascot-btn:hover .m-arm-r {
-  animation: m-wave .5s ease-in-out infinite alternate;
+  animation:
+    m-wave
+    .5s
+    ease-in-out
+    infinite
+    alternate;
 }
 
 .mascot-btn:hover .m-sprite {
-  animation: m-hop .5s ease-out 1;
+  animation:
+    m-hop
+    .5s
+    ease-out
+    1;
 }
 
 
-/*
-  Jangan biarkan hover mengganggu pose ketika sedang diangkat,
-  jatuh, atau mendarat.
-*/
-
-.mascot-btn[data-pose="held"]:hover .m-sprite,
-.mascot-btn[data-pose="fall"]:hover .m-sprite,
-.mascot-btn[data-pose="land"]:hover .m-sprite {
-  animation: none;
-}
-
-
-/* =========================================================
-   HELD / DRAGGED
-   ========================================================= */
+/* ============================================================
+   HELD / DIANGKAT
+   ============================================================ */
 
 .mascot-btn[data-pose="held"] {
   cursor: grabbing;
@@ -274,18 +627,22 @@
 
 
 /*
-  Ketika diangkat, badan sedikit bergoyang.
+  Badan bergoyang ketika diangkat.
 */
 
 .mascot-btn[data-pose="held"] .m-sprite {
   transform-origin: 50% 8%;
 
-  animation: m-dangle 1.1s ease-in-out infinite;
+  animation:
+    m-dangle
+    1.1s
+    ease-in-out
+    infinite;
 }
 
 
 /*
-  Matikan breathing/bob saat diangkat.
+  Matikan animasi badan normal.
 */
 
 .mascot-btn[data-pose="held"] .m-body-g,
@@ -295,56 +652,229 @@
 
 
 /*
-  Kaki menjuntai saat diangkat.
+  Kaki menjuntai.
 */
 
 .mascot-btn[data-pose="held"] .m-leg-l {
-  animation: m-kick .7s ease-in-out infinite;
+  animation:
+    m-kick
+    .7s
+    ease-in-out
+    infinite;
 }
 
 .mascot-btn[data-pose="held"] .m-leg-r {
-  animation: m-kick .7s ease-in-out infinite reverse;
+  animation:
+    m-kick
+    .7s
+    ease-in-out
+    infinite
+    reverse;
 }
 
 
 /*
-  Tangan bergerak ketika kaget.
+  Tangan panik.
 */
 
 .mascot-btn[data-pose="held"] .m-arm-l,
 .mascot-btn[data-pose="fall"] .m-arm-l {
-  animation: m-flail-l .3s ease-in-out infinite alternate;
+  animation:
+    m-flail-l
+    .3s
+    ease-in-out
+    infinite
+    alternate;
 }
 
 .mascot-btn[data-pose="held"] .m-arm-r,
 .mascot-btn[data-pose="fall"] .m-arm-r {
-  animation: m-flail-r .3s ease-in-out infinite alternate;
+  animation:
+    m-flail-r
+    .3s
+    ease-in-out
+    infinite
+    alternate;
 }
 
 
-/* =========================================================
+/* ============================================================
    FALL
-   ========================================================= */
+   ============================================================ */
 
 .mascot-btn[data-pose="fall"] .m-sprite {
   animation: none;
 }
 
 
-/* =========================================================
+/* ============================================================
    LAND
-   ========================================================= */
+   ============================================================ */
 
 .mascot-btn[data-pose="land"] .m-sprite {
-  animation: m-squash .6s ease-out 1;
+  animation:
+    m-squash
+    .6s
+    ease-out
+    1;
 }
 
 
-/* =========================================================
-   KEYFRAMES
-   ========================================================= */
+/* ============================================================
+   BLINK
+   ============================================================ */
+
+@keyframes m-blink {
+
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  95% {
+    transform: scaleY(.1);
+  }
+}
+
+
+/* ============================================================
+   BREATHING
+   ============================================================ */
+
+@keyframes m-breathe {
+
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+
+  50% {
+    transform: scale(1.02, .97);
+  }
+}
+
+
+/* ============================================================
+   WALK BOB
+   ============================================================ */
+
+@keyframes m-bob {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+
+/* ============================================================
+   WALK STEP
+   ============================================================ */
+
+@keyframes m-step {
+
+  0%,
+  100% {
+    transform: rotate(-26deg);
+  }
+
+  50% {
+    transform: rotate(26deg);
+  }
+}
+
+
+/* ============================================================
+   HAPPY JUMP
+   ============================================================ */
+
+@keyframes m-jump {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(-16px);
+  }
+}
+
+
+/* ============================================================
+   SMALL HOP
+   ============================================================ */
+
+@keyframes m-hop {
+
+  0% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-6px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================================================
+   WAVE
+   ============================================================ */
+
+@keyframes m-wave {
+
+  from {
+    transform: rotate(-8deg);
+  }
+
+  to {
+    transform: rotate(-58deg);
+  }
+}
+
+
+/* ============================================================
+   HAPPY ARMS
+   ============================================================ */
+
+@keyframes m-cheer-l {
+
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(58deg);
+  }
+}
+
+@keyframes m-cheer-r {
+
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(-58deg);
+  }
+}
+
+
+/* ============================================================
+   HELD / DANGLE
+   ============================================================ */
 
 @keyframes m-dangle {
+
   0%,
   100% {
     transform: rotate(-7deg);
@@ -356,7 +886,12 @@
 }
 
 
+/* ============================================================
+   HELD LEGS
+   ============================================================ */
+
 @keyframes m-kick {
+
   0%,
   100% {
     transform: rotate(-16deg);
@@ -368,7 +903,12 @@
 }
 
 
+/* ============================================================
+   FALLING ARMS
+   ============================================================ */
+
 @keyframes m-flail-l {
+
   from {
     transform: rotate(38deg);
   }
@@ -378,8 +918,8 @@
   }
 }
 
-
 @keyframes m-flail-r {
+
   from {
     transform: rotate(-38deg);
   }
@@ -390,7 +930,12 @@
 }
 
 
+/* ============================================================
+   LAND / SQUASH
+   ============================================================ */
+
 @keyframes m-squash {
+
   0% {
     transform: scale(1.18, .72);
   }
@@ -409,119 +954,32 @@
 }
 
 
-@keyframes m-breathe {
-  0%,
-  100% {
-    transform: scale(1, 1);
-  }
-
-  50% {
-    transform: scale(1.02, .97);
-  }
-}
-
-
-@keyframes m-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-
-@keyframes m-step {
-  0%,
-  100% {
-    transform: rotate(-26deg);
-  }
-
-  50% {
-    transform: rotate(26deg);
-  }
-}
-
-
-@keyframes m-jump {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  45% {
-    transform: translateY(-16px);
-  }
-}
-
-
-@keyframes m-hop {
-  0% {
-    transform: translateY(0);
-  }
-
-  40% {
-    transform: translateY(-6px);
-  }
-
-  100% {
-    transform: translateY(0);
-  }
-}
-
-
-@keyframes m-wave {
-  from {
-    transform: rotate(-8deg);
-  }
-
-  to {
-    transform: rotate(-58deg);
-  }
-}
-
-
-@keyframes m-cheer-l {
-  from {
-    transform: rotate(0);
-  }
-
-  to {
-    transform: rotate(58deg);
-  }
-}
-
-
-@keyframes m-cheer-r {
-  from {
-    transform: rotate(0);
-  }
-
-  to {
-    transform: rotate(-58deg);
-  }
-}
-
+/* ============================================================
+   SLEEP Z FLOAT
+   ============================================================ */
 
 @keyframes m-float {
+
   0%,
   100% {
-    transform: translateY(0);
+    transform:
+      translateY(0);
+
     opacity: .55;
   }
 
   50% {
-    transform: translateY(-4px);
+    transform:
+      translateY(-4px);
+
     opacity: 1;
   }
 }
 
 
-/* =========================================================
+/* ============================================================
    SPEECH BUBBLE
-   ========================================================= */
+   ============================================================ */
 
 .m-bubble {
   position: absolute;
@@ -529,23 +987,37 @@
   bottom: calc(100% + 10px);
 
   width: max-content;
-  max-width: min(270px, calc(100vw - 24px));
+
+  max-width:
+    min(
+      270px,
+      calc(100vw - 24px)
+    );
 
   pointer-events: auto;
 
   background: var(--paper);
+
   color: var(--ink);
 
-  border: 1.5px solid var(--accent);
+  border:
+    1.5px solid
+    var(--accent);
+
   border-radius: var(--r2);
 
   padding: 10px 12px;
 
   box-shadow: var(--shadow);
 
-  font: 400 15px/1.4 var(--ui);
+  font:
+    400 15px/1.4
+    var(--ui);
 
-  animation: m-pop .22s ease-out;
+  animation:
+    m-pop
+    .22s
+    ease-out;
 
   transform-origin: 50% 100%;
 }
@@ -555,9 +1027,9 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    BUBBLE ARROW
-   ========================================================= */
+   ============================================================ */
 
 .m-bubble::after {
   content: "";
@@ -571,18 +1043,22 @@
 
   background: var(--paper);
 
-  border: 1.5px solid var(--accent);
+  border:
+    1.5px solid
+    var(--accent);
 
   border-top: 0;
   border-left: 0;
 
-  transform: translateY(-5px) rotate(45deg);
+  transform:
+    translateY(-5px)
+    rotate(45deg);
 }
 
 
-/* =========================================================
-   BUBBLE ALIGNMENT
-   ========================================================= */
+/* ============================================================
+   BUBBLE CENTER
+   ============================================================ */
 
 .m-bubble[data-align="center"] {
   left: 50%;
@@ -597,27 +1073,41 @@
 }
 
 
+/* ============================================================
+   BUBBLE LEFT
+   ============================================================ */
+
 .m-bubble[data-align="left"] {
   left: 0;
 }
 
 .m-bubble[data-align="left"]::after {
-  left: calc(var(--m-size) / 2 - 5px);
+  left:
+    calc(
+      var(--m-size) / 2 - 5px
+    );
 }
 
+
+/* ============================================================
+   BUBBLE RIGHT
+   ============================================================ */
 
 .m-bubble[data-align="right"] {
   right: 0;
 }
 
 .m-bubble[data-align="right"]::after {
-  right: calc(var(--m-size) / 2 - 5px);
+  right:
+    calc(
+      var(--m-size) / 2 - 5px
+    );
 }
 
 
-/* =========================================================
+/* ============================================================
    BUBBLE ACTIONS
-   ========================================================= */
+   ============================================================ */
 
 .m-acts {
   display: flex;
@@ -631,6 +1121,10 @@
   margin-top: 9px;
 }
 
+
+/* ============================================================
+   HIDE BUTTON
+   ============================================================ */
 
 .m-hide {
   all: unset;
@@ -653,28 +1147,36 @@
 }
 
 .m-hide:focus-visible {
-  outline: 2px solid var(--accent);
+  outline:
+    2px solid
+    var(--accent);
+
   outline-offset: 2px;
 }
 
 
-/* =========================================================
-   HAIR / STYLE PICKER
-   ========================================================= */
+/* ============================================================
+   STYLE PICKER
+   ============================================================ */
 
 .m-picker {
   min-width: 220px;
 }
-
 
 .m-ptitle {
   font-size: 12px;
 
   color: var(--ink2);
 
-  margin: 0 0 5px !important;
+  margin:
+    0 0 5px
+    !important;
 }
 
+
+/* ============================================================
+   HAIR STYLE CHIPS
+   ============================================================ */
 
 .m-chips {
   display: flex;
@@ -685,7 +1187,6 @@
 
   margin-bottom: 9px;
 }
-
 
 .m-chip {
   all: unset;
@@ -700,20 +1201,21 @@
 
   border-radius: 999px;
 
-  border: 1.5px solid var(--accent);
+  border:
+    1.5px solid
+    var(--accent);
 
   color: var(--ink);
 }
 
-
 .m-chip:hover {
-  background: color-mix(
-    in srgb,
-    var(--accent) 10%,
-    transparent
-  );
+  background:
+    color-mix(
+      in srgb,
+      var(--accent) 10%,
+      transparent
+    );
 }
-
 
 .m-chip[aria-pressed="true"] {
   background: var(--accent);
@@ -722,9 +1224,9 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    HAIR COLOR SWATCHES
-   ========================================================= */
+   ============================================================ */
 
 .m-swatches {
   display: flex;
@@ -733,7 +1235,6 @@
 
   gap: 7px;
 }
-
 
 .m-swatch {
   all: unset;
@@ -747,7 +1248,9 @@
 
   border-radius: 50%;
 
-  border: 2px solid var(--paper);
+  border:
+    2px solid
+    var(--paper);
 
   box-shadow:
     0 0 0 1.5px
@@ -758,31 +1261,32 @@
     );
 }
 
-
 .m-swatch:hover {
   transform: scale(1.08);
 }
 
-
 .m-swatch[aria-pressed="true"] {
   box-shadow:
-    0 0 0 2.5px var(--accent);
+    0 0 0 2.5px
+    var(--accent);
 }
-
 
 .m-chip:focus-visible,
 .m-swatch:focus-visible {
-  outline: 2px solid var(--accent);
+  outline:
+    2px solid
+    var(--accent);
 
   outline-offset: 2px;
 }
 
 
-/* =========================================================
+/* ============================================================
    BUBBLE POP
-   ========================================================= */
+   ============================================================ */
 
 @keyframes m-pop {
+
   from {
     opacity: 0;
 
@@ -797,25 +1301,31 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    MOBILE
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 600px) {
 
   .mascot {
     --m-size: 88px;
 
-    bottom: calc(
-      8px + env(safe-area-inset-bottom, 0px)
-    );
+    bottom:
+      calc(
+        8px +
+        env(
+          safe-area-inset-bottom,
+          0px
+        )
+      );
   }
 
   .m-bubble {
-    max-width: min(
-      250px,
-      calc(100vw - 20px)
-    );
+    max-width:
+      min(
+        250px,
+        calc(100vw - 20px)
+      );
 
     font-size: 14px;
 
@@ -828,9 +1338,9 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    REDUCED MOTION
-   ========================================================= */
+   ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -846,9 +1356,9 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    PRINT
-   ========================================================= */
+   ============================================================ */
 
 @media print {
 
