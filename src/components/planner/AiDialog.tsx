@@ -1,6 +1,8 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { AgentResult } from '@/lib/types';
+import { Icon } from '@/components/Icon';
 import { Modal } from './Modal';
 import { usePlanner } from './PlannerProvider';
 
@@ -13,12 +15,85 @@ const EXAMPLES = [
   'Catat: beli tiket kereta',
 ];
 
+/** Custom Hook untuk Web Speech API */
+function useSpeechRecognition(onResult: (text: string) => void) {
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const onResultRef = useRef(onResult);
+
+  // Selalu simpan callback terbaru tanpa mentrigger re-effect
+  useEffect(() => {
+    onResultRef.current = onResult;
+  }, [onResult]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'id-ID';
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          onResultRef.current(transcript);
+        }
+        setIsListening(false);
+      };
+
+      recognition.onerror = (err: any) => {
+        console.error('Speech recognition error:', err);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+  }, []);
+
+  const toggleListening = useCallback(() => {
+    if (!recognitionRef.current) {
+      alert('Browser kamu tidak mendukung fitur pengenalan suara.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (err) {
+        console.error('Gagal memulai rekaman:', err);
+      }
+    }
+  }, [isListening]);
+
+  return { isListening, toggleListening };
+}
+
 function AiForm() {
   const { afterAgent, applyUndo, toast, closeAi } = usePlanner();
   const [text, setText] = useState('');
   const [state, setState] = useState<'idle' | 'run' | 'done' | 'error'>('idle');
   const [result, setResult] = useState<AgentResult | null>(null);
   const [error, setError] = useState('');
+
+  // Hook Suara
+  const handleSpeechResult = useCallback((spokenText: string) => {
+    setText((prev) => (prev ? `${prev} ${spokenText}` : spokenText));
+  }, []);
+
+  const { isListening, toggleListening } = useSpeechRecognition(handleSpeechResult);
 
   async function send() {
     const message = text.trim();
@@ -27,7 +102,9 @@ function AiForm() {
     setResult(null);
     try {
       const res = await fetch('/api/ai', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal menghubungi AI');
@@ -57,16 +134,20 @@ function AiForm() {
         <span className="ai2-orb" aria-hidden="true" />
         <div className="ai2-title">
           <h3 id="aiHead">Asisten Jadwal</h3>
-          <p>Ketik apa saja, aku yang urus kalendermu</p>
+          <p>Ketik atau bicaralah, aku yang urus kalendermu</p>
         </div>
-        <button className="ai2-x" aria-label="Tutup" onClick={closeAi}>✕</button>
+        <button className="ai2-x" aria-label="Tutup" onClick={closeAi}>
+          ✕
+        </button>
       </div>
 
       <div className="ai2-body">
         {showIntro && (
           <div className="ai2-cards">
             {EXAMPLES.map((ex) => (
-              <button key={ex} className="ai2-card" onClick={() => setText(ex)}>{ex}</button>
+              <button key={ex} className="ai2-card" onClick={() => setText(ex)}>
+                {ex}
+              </button>
             ))}
           </div>
         )}
@@ -75,7 +156,9 @@ function AiForm() {
           <div className="ai2-out" aria-live="polite">
             <ol className="ai2-steps">
               <li className="done">Pesan masuk</li>
-              <li className={state === 'run' ? 'run' : state === 'error' ? '' : 'done'}>AI membaca</li>
+              <li className={state === 'run' ? 'run' : state === 'error' ? '' : 'done'}>
+                AI membaca
+              </li>
               <li className={state === 'done' ? 'done' : ''}>Masuk kalender</li>
             </ol>
             {state === 'error' && <div className="ai2-bubble ai2-bubble-error">{error}</div>}
@@ -83,11 +166,21 @@ function AiForm() {
               <div className="ai2-bubble">
                 <p>{result.reply}</p>
                 {result.changes.length > 0 && (
-                  <ul>{result.changes.map((c, i) => <li key={i}>{c}</li>)}</ul>
+                  <ul>
+                    {result.changes.map((c, i) => (
+                      <li key={i}>{c}</li>
+                    ))}
+                  </ul>
                 )}
                 <div className="ai2-acts">
-                  {result.undo.length > 0 && <button className="btn small" onClick={undo}>Urungkan</button>}
-                  <button className="btn small" onClick={() => setState('idle')}>Tutup pesan</button>
+                  {result.undo.length > 0 && (
+                    <button className="btn small" onClick={undo}>
+                      Urungkan
+                    </button>
+                  )}
+                  <button className="btn small" onClick={() => setState('idle')}>
+                    Tutup pesan
+                  </button>
                 </div>
               </div>
             )}
@@ -97,12 +190,43 @@ function AiForm() {
 
       <div className="ai2-inputbar">
         <textarea
-          className="ai2-input" value={text} autoComplete="off" maxLength={600} autoFocus rows={2}
-          placeholder="Ketik bebas, misal: besok jam 7 malam meeting desain di kantor"
+          className="ai2-input"
+          value={text}
+          autoComplete="off"
+          maxLength={600}
+          autoFocus
+          rows={2}
+          placeholder={isListening ? 'Mendengarkan suara...' : 'Ketik bebas atau klik ikon mikrofon...'}
           aria-label="Perintah untuk AI"
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
+          }}
         />
+
+        {/* Tombol Mikrofon Suara */}
+        <button
+          type="button"
+          className={`ai2-mic ${isListening ? 'listening' : ''}`}
+          aria-label="Input Suara"
+          title={isListening ? 'Berhenti mendengarkan' : 'Mulai bicara'}
+          onClick={toggleListening}
+          style={{
+            padding: '8px',
+            borderRadius: '50%',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: isListening ? '#ef4444' : '#f3f4f6',
+            color: isListening ? '#ffffff' : '#374151',
+            marginRight: '4px',
+          }}
+        >
+          {isListening ? '🎙️' : '🎤'}
+        </button>
+
         <button className="ai2-send" aria-label="Kirim" onClick={send} disabled={state === 'run'}>
           {state === 'run' ? '···' : '➤'}
         </button>
@@ -111,8 +235,24 @@ function AiForm() {
   );
 }
 
+/** Tombol kecil di kanan header: buka jendela "Kirim ke AI". */
+export function AiBar() {
+  const { setAiDlg } = usePlanner();
+  return (
+    <div className="qa" aria-label="Tambah jadwal lewat AI">
+      <button className="qa-btn" onClick={() => setAiDlg(true)}>
+        <Icon n="sparkle" size={15} /> Kirim ke AI
+      </button>
+    </div>
+  );
+}
+
 /** Jendela "Kirim ke AI": dibuka dari tombol di baris aksi cepat. */
 export function AiDialog() {
   const { aiDlg, closeAi } = usePlanner();
-  return <Modal open={aiDlg} onClose={closeAi} labelledBy="aiHead" className="ai-modal"><AiForm /></Modal>;
+  return (
+    <Modal open={aiDlg} onClose={closeAi} labelledBy="aiHead" className="ai-modal">
+      <AiForm />
+    </Modal>
+  );
 }
