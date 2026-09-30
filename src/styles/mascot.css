@@ -1,6 +1,6 @@
 /*
   Karakter yang berjalan di bawah layar (Mascot.tsx).
-  Semua warna diambil dari variabel tema, jadi otomatis ikut ganti tema & mode gelap.
+  Baju & aksesori diambil dari variabel tema (ikut ganti tema & mode gelap); kulit, rambut, mata memakai warna tetap.
   Ukuran harus sama dengan konstanta SIZE di Mascot.tsx.
 */
 .mascot{
@@ -22,19 +22,35 @@
 
 .m-sprite{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 100%}
 .m-shadow{fill:color-mix(in srgb,var(--ink) 16%,transparent)}
-.m-body{fill:var(--pink-l);stroke:var(--accent);stroke-width:2.6}
-.m-cheek{fill:var(--pink);opacity:.85}
-.m-eye{fill:var(--ink);transform-box:fill-box;transform-origin:center;animation:m-blink 4.4s infinite}
-.m-mouth{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round}
-.m-mouth-o{fill:var(--ink);stroke:none}
-.m-hair{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.m-limb{fill:var(--accent)}
-.m-arm{fill:none;stroke:var(--accent);stroke-width:3.2;stroke-linecap:round;transform-box:view-box}
-.m-arm-l{transform-origin:14px 42px}
-.m-arm-r{transform-origin:58px 42px}
+/* palet tetap (kulit, rambut, mata) supaya karakter tetap terbaca di mode gelap; baju & aksesori ikut tema */
+.m-skin{fill:#fbdcc4}
+.m-sock{fill:#fff7f2;stroke:color-mix(in srgb,var(--accent) 40%,transparent);stroke-width:.5}
+.m-shoe{fill:var(--accent)}
+.m-hair-b,.m-hair-f{fill:var(--m-hair,#3a2622);stroke:color-mix(in srgb,var(--accent) 55%,transparent);stroke-width:.8;stroke-linejoin:round}
+.m-hair-f{stroke:none}
+.m-tie{fill:var(--accent)}
+.m-dress{fill:var(--pink-l);stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round}
+.m-lace{fill:none;stroke:var(--paper);stroke-width:1.1;stroke-linecap:round;stroke-dasharray:1.5 1.3}
+.m-dot{fill:var(--paper)}
+.m-sleeve{fill:var(--pink-l);stroke:var(--accent);stroke-width:1.3}
+.m-arm-skin{fill:none;stroke:#fbdcc4;stroke-width:3.4;stroke-linecap:round}
+.m-face{fill:#fbdcc4;stroke:color-mix(in srgb,var(--accent) 45%,transparent);stroke-width:.8}
+.m-cheek{fill:var(--pink);opacity:.7}
+.m-eye{fill:#2a1a17;transform-box:fill-box;transform-origin:center;animation:m-blink 4.4s infinite}
+.m-glint{fill:#fff}
+.m-lash{fill:none;stroke:#2a1a17;stroke-width:1.2;stroke-linecap:round}
+.m-mouth{fill:none;stroke:#7b3f3a;stroke-width:1.7;stroke-linecap:round}
+.m-mouth-o{fill:#7b3f3a;stroke:none}
+.m-sweat{fill:#a9d6f5;stroke:none}
+.m-clip circle{fill:var(--paper);stroke:var(--accent);stroke-width:1.3}
+.m-clip path{fill:none;stroke:var(--accent);stroke-width:1;stroke-linecap:round}
+.m-bow path,.m-bow circle{fill:var(--accent);stroke:var(--paper);stroke-width:.6;stroke-linejoin:round}
+.m-arm{transform-box:view-box}
+.m-arm-l{transform-origin:28.5px 47px}
+.m-arm-r{transform-origin:43.5px 47px}
 .m-leg{transform-box:view-box}
-.m-leg-l{transform-origin:30px 56px}
-.m-leg-r{transform-origin:42px 56px}
+.m-leg-l{transform-origin:32.5px 56px}
+.m-leg-r{transform-origin:39.5px 56px}
 .m-body-g{transform-box:view-box;transform-origin:36px 62px}
 .m-z{font:700 9px/1 var(--ui);fill:var(--accent);transform-box:fill-box;transform-origin:center;transform:scaleX(var(--dir,1))}
 .m-zzz{animation:m-float 2.2s ease-in-out infinite}
@@ -106,6 +122,16 @@
 .m-hide{all:unset;cursor:pointer;font-size:12px;color:var(--ink2);text-decoration:underline;padding:2px 4px;margin-left:auto}
 .m-hide:hover{color:var(--ink)}
 .m-hide:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* pemilih model & warna rambut */
+.m-picker{min-width:220px}
+.m-ptitle{font-size:12px;color:var(--ink2);margin:0 0 5px!important}
+.m-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.m-chip{all:unset;box-sizing:border-box;cursor:pointer;font-size:12.5px;padding:3px 9px;border-radius:999px;border:1.5px solid var(--accent);color:var(--ink)}
+.m-chip[aria-pressed="true"]{background:var(--accent);color:var(--paper)}
+.m-swatches{display:flex;flex-wrap:wrap;gap:7px}
+.m-swatch{all:unset;box-sizing:border-box;cursor:pointer;width:22px;height:22px;border-radius:50%;border:2px solid var(--paper);box-shadow:0 0 0 1.5px color-mix(in srgb,var(--ink) 30%,transparent)}
+.m-swatch[aria-pressed="true"]{box-shadow:0 0 0 2.5px var(--accent)}
+.m-chip:focus-visible,.m-swatch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @keyframes m-pop{from{opacity:0;scale:.85}to{opacity:1;scale:1}}
 
 @media (prefers-reduced-motion:reduce){

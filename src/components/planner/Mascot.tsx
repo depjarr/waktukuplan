@@ -12,6 +12,7 @@ import { usePlanner } from './PlannerProvider';
  *  - Diklik => membuka jendela "Asisten Jadwal" (AI) yang sudah ada di AiDialog.
  *  - Bisa DIANGKAT (tekan & seret, mirip shimeji): wajahnya kaget, kakinya menjuntai. Dilepas => jatuh
  *    (kena gravitasi), mendarat gepeng dengan mata senyum, lalu lanjut jalan-jalan lagi.
+ *  - Model & warna rambut bisa diganti lewat tombol "Ganti gaya" di balon sapaan.
  *  - Ikut melompat senang tiap ada jadwal baru masuk (dari AI maupun manual).
  *  - Bisa disembunyikan/dimunculkan lagi dari Tampilan -> Panel -> Karakter (disimpan di ui.mascot).
  *
@@ -19,7 +20,28 @@ import { usePlanner } from './PlannerProvider';
  */
 
 type Pose = 'idle' | 'walk' | 'sleep' | 'happy' | 'held' | 'fall' | 'land';
-interface Bubble { text: string; actions: boolean }
+interface Bubble { text: string; actions: boolean; picker?: boolean }
+
+type HairStyle = 'lurus' | 'kepang' | 'kuncir' | 'twintail' | 'pendek' | 'cepol';
+const HAIR_STYLES: { id: HairStyle; label: string }[] = [
+  { id: 'lurus', label: 'Lurus panjang' },
+  { id: 'kepang', label: 'Kepang dua' },
+  { id: 'kuncir', label: 'Kuncir' },
+  { id: 'twintail', label: 'Twintail' },
+  { id: 'pendek', label: 'Bob' },
+  { id: 'cepol', label: 'Cepol' },
+];
+const HAIR_COLORS: { hex: string; label: string }[] = [
+  { hex: '#3a2622', label: 'Hitam' },
+  { hex: '#7a4a2b', label: 'Cokelat' },
+  { hex: '#d9a441', label: 'Pirang' },
+  { hex: '#b5442f', label: 'Merah' },
+  { hex: '#e58fb0', label: 'Pink' },
+  { hex: '#4a6fa5', label: 'Biru' },
+  { hex: '#7b5aa6', label: 'Ungu' },
+  { hex: '#c9ccd6', label: 'Perak' },
+];
+const LOOK_KEY = 'waktukuplan-mascot-look';
 
 const SIZE = 96; // px, harus sama dengan --m-size di mascot.css
 const SPEED = 55; // px per detik
@@ -43,54 +65,158 @@ function buildGreeting(events: EventRow[], todayKey: string, now: Date | null): 
   return `${hi}! Ada ${left.length} jadwal lagi hari ini. Berikutnya: ${clip(next.title, 36)}${when}.`;
 }
 
-/** Gambar karakternya (SVG). Semua warna ikut tema lewat variabel CSS di mascot.css. */
-function Sprite({ pose }: { pose: Pose }) {
+/** Rambut bagian belakang (di belakang kepala & baju). Beda tiap model. */
+function HairBack({ hair }: { hair: HairStyle }) {
+  const cap = 'M17 26 C15 34 17 38 21 41.5 Q36 45 51 41.5 C55 38 57 34 55 26 Z';
+  switch (hair) {
+    case 'kepang':
+      return (
+        <>
+          <path className="m-hair-b" d={cap} />
+          <g className="m-hair-b">
+            <ellipse cx="19" cy="44" rx="3.4" ry="2.8" /><ellipse cx="18" cy="49" rx="3.4" ry="2.8" />
+            <ellipse cx="19" cy="54" rx="3.4" ry="2.8" /><ellipse cx="18" cy="59" rx="3.2" ry="2.6" />
+            <ellipse cx="53" cy="44" rx="3.4" ry="2.8" /><ellipse cx="54" cy="49" rx="3.4" ry="2.8" />
+            <ellipse cx="53" cy="54" rx="3.4" ry="2.8" /><ellipse cx="54" cy="59" rx="3.2" ry="2.6" />
+          </g>
+          <circle className="m-tie" cx="18" cy="62.4" r="1.7" />
+          <circle className="m-tie" cx="54" cy="62.4" r="1.7" />
+        </>
+      );
+    case 'kuncir':
+      return (
+        <>
+          <path className="m-hair-b" d={cap} />
+          <path className="m-hair-b" d="M50 15 C66 13 68 38 62 57 C58 52 57 40 52 28 Z" />
+        </>
+      );
+    case 'twintail':
+      return (
+        <>
+          <path className="m-hair-b" d={cap} />
+          <path className="m-hair-b" d="M21 19 C8 18 4.5 40 9 58 C14 53 16 40 20 29 Z" />
+          <path className="m-hair-b" d="M51 19 C64 18 67.5 40 63 58 C58 53 56 40 52 29 Z" />
+        </>
+      );
+    case 'pendek':
+      return <path className="m-hair-b" d="M15.5 27 C12.5 37 13.5 45 16.5 49.5 Q36 54 55.5 49.5 C58.5 45 59.5 37 56.5 27 Z" />;
+    case 'cepol':
+      return (
+        <>
+          <path className="m-hair-b" d={cap} />
+          <circle className="m-hair-b" cx="36" cy="8.5" r="6.6" />
+        </>
+      );
+    default:
+      return <path className="m-hair-b" d="M16 26 C12.5 38 13.5 51 16.5 58.5 Q25 61.5 36 60.5 Q47 61.5 55.5 58.5 C58.5 51 59.5 38 56 26 Z" />;
+  }
+}
+
+/** Helai rambut di samping wajah (di depan kepala). */
+function HairSide({ hair }: { hair: HairStyle }) {
+  const long = hair === 'lurus';
+  const mid = hair === 'pendek';
+  const l = long ? 'M16.8 27 C15 37 16.5 46 19.5 52.5 C21.6 45 21.4 36 23 28.5 Z'
+    : mid ? 'M16.8 27 C15 35 16 42 18.5 46.5 C21 41 21.4 35 23 28.5 Z'
+    : 'M16.8 27 C15.5 33 16.5 38 19 41 C20.8 36 21.4 32 23 28.5 Z';
+  const r = long ? 'M55.2 27 C57 37 55.5 46 52.5 52.5 C50.4 45 50.6 36 49 28.5 Z'
+    : mid ? 'M55.2 27 C57 35 56 42 53.5 46.5 C51 41 50.6 35 49 28.5 Z'
+    : 'M55.2 27 C56.5 33 55.5 38 53 41 C51.2 36 50.6 32 49 28.5 Z';
+  return (
+    <>
+      <path className="m-hair-f" d={l} />
+      <path className="m-hair-f" d={r} />
+    </>
+  );
+}
+
+/** Gambar karakternya (SVG): anak perempuan chibi berambut panjang. Warna baju/aksesori ikut tema lewat variabel CSS di mascot.css. */
+function Sprite({ pose, hair }: { pose: Pose; hair: HairStyle }) {
   const asleep = pose === 'sleep';
   const scared = pose === 'held' || pose === 'fall';
   const joy = pose === 'land';
   return (
     <svg className="m-sprite" viewBox="0 0 72 72" aria-hidden="true" focusable="false">
       <ellipse className="m-shadow" cx="36" cy="69" rx="17" ry="3" />
-      <g className="m-leg m-leg-l"><rect className="m-limb" x="26" y="56" width="8" height="11" rx="4" /></g>
-      <g className="m-leg m-leg-r"><rect className="m-limb" x="38" y="56" width="8" height="11" rx="4" /></g>
       <g className="m-body-g">
-        <path className="m-arm m-arm-l" d="M14 42 q-7 2 -8 9" />
-        <path className="m-arm m-arm-r" d="M58 42 q7 2 8 9" />
-        <circle className="m-body" cx="36" cy="38" r="24" />
-        {/* jarum jam kecil di kepala, biar nyambung sama logo waktukuplan */}
-        <path className="m-hair" d="M36 14 v-7 M36 7 l4 3" />
-        <ellipse className="m-cheek" cx="24" cy="44" rx="4" ry="2.6" />
-        <ellipse className="m-cheek" cx="48" cy="44" rx="4" ry="2.6" />
+        {/* rambut belakang */}
+        <HairBack hair={hair} />
+        {/* baju */}
+        <path className="m-dress" d="M29 44 h14 l6 13 q-13 3 -26 0 z" />
+        <path className="m-lace" d="M23.6 57 q12.4 3 24.8 0" />
+        <circle className="m-dot" cx="31" cy="50" r="0.9" />
+        <circle className="m-dot" cx="38" cy="53" r="0.9" />
+        <circle className="m-dot" cx="42" cy="48.5" r="0.9" />
+        <circle className="m-dot" cx="28" cy="55" r="0.9" />
+        <circle className="m-dot" cx="45.5" cy="54.5" r="0.9" />
+        <circle className="m-dot" cx="35" cy="47" r="0.9" />
+        {/* lengan */}
+        <g className="m-arm m-arm-l">
+          <path className="m-arm-skin" d="M28.5 47 q-5 2 -5 8" />
+          <circle className="m-sleeve" cx="28.5" cy="46.5" r="2.7" />
+        </g>
+        <g className="m-arm m-arm-r">
+          <path className="m-arm-skin" d="M43.5 47 q5 2 5 8" />
+          <circle className="m-sleeve" cx="43.5" cy="46.5" r="2.7" />
+        </g>
+        {/* kepala */}
+        <ellipse className="m-face" cx="36" cy="27" rx="18.5" ry="16.5" />
+        <ellipse className="m-cheek" cx="24" cy="35" rx="3.8" ry="2.4" />
+        <ellipse className="m-cheek" cx="48" cy="35" rx="3.8" ry="2.4" />
         {asleep ? (
           <>
-            <path className="m-mouth" d="M27 37 q3 2.5 6 0 M40 37 q3 2.5 6 0" />
-            <circle className="m-mouth m-mouth-o" cx="37" cy="46" r="1.6" />
+            <path className="m-mouth" d="M25 31 q4 3 8 0 M39 31 q4 3 8 0" />
+            <circle className="m-mouth m-mouth-o" cx="36" cy="39.5" r="1.3" />
           </>
         ) : scared ? (
           <>
-            {/* kaget: mata melebar, alis khawatir, mulut bulat */}
-            <path className="m-mouth" d="M26 31 l7 -3 M48 31 l-7 -3" />
-            <ellipse className="m-eye" cx="30" cy="37" rx="3.4" ry="4.8" />
-            <ellipse className="m-eye" cx="44" cy="37" rx="3.4" ry="4.8" />
-            <circle className="m-mouth m-mouth-o" cx="37" cy="47" r="2.8" />
+            {/* kaget: mata melebar, mulut bulat, keringat */}
+            <g className="m-eye"><ellipse cx="29" cy="30.5" rx="4.7" ry="5.9" /><circle className="m-glint" cx="30.6" cy="28" r="1.6" /></g>
+            <g className="m-eye"><ellipse cx="43" cy="30.5" rx="4.7" ry="5.9" /><circle className="m-glint" cx="44.6" cy="28" r="1.6" /></g>
+            <circle className="m-mouth m-mouth-o" cx="36" cy="40" r="2.3" />
+            <path className="m-sweat" d="M53 27 q2.6 3.4 0 5.6 q-2.6 -2.2 0 -5.6" />
           </>
         ) : joy ? (
           <>
             {/* mendarat: mata senyum ^ ^ */}
-            <path className="m-mouth" d="M26 39 q4 -5 8 0 M40 39 q4 -5 8 0 M31 45 q6 6 12 0" />
+            <path className="m-mouth" d="M25 31.5 q4 -5 8 0 M39 31.5 q4 -5 8 0 M32.5 37.5 q3.5 5 7 0" />
           </>
         ) : (
           <>
-            <ellipse className="m-eye" cx="30" cy="37" rx="2.6" ry="3.6" />
-            <ellipse className="m-eye" cx="44" cy="37" rx="2.6" ry="3.6" />
-            <path className="m-mouth" d={pose === 'happy' ? 'M31 45 q6 7 12 0' : 'M32 45 q5 4 10 0'} />
+            <g className="m-eye"><ellipse cx="29" cy="30.5" rx="4.1" ry="5" /><circle className="m-glint" cx="30.4" cy="28.4" r="1.4" /><circle className="m-glint" cx="27.6" cy="32.6" r="0.7" /></g>
+            <g className="m-eye"><ellipse cx="43" cy="30.5" rx="4.1" ry="5" /><circle className="m-glint" cx="44.4" cy="28.4" r="1.4" /><circle className="m-glint" cx="41.6" cy="32.6" r="0.7" /></g>
+            <path className="m-lash" d="M24.4 27.6 l-2 -1.2 M48.6 27.6 l2 -1.2" />
+            <path className="m-mouth" d={pose === 'happy' ? 'M32 37.6 q4 5 8 0' : 'M33.5 38.2 q2.5 2.4 5 0'} />
           </>
         )}
+        {/* poni belah tengah + rambut samping */}
+        <path className="m-hair-f" d="M16.5 28 C14.5 8 57.5 8 55.5 28 C51.5 22 45 18 36 13.5 C28 18 21.5 23 16.5 28 Z" />
+        <HairSide hair={hair} />
+        {/* aksesori: jepit jam (nyambung sama logo) & pita */}
+        <g className="m-clip">
+          <circle cx="22.5" cy="19.5" r="3.4" />
+          <path d="M22.5 19.5 v-2 M22.5 19.5 l1.6 1" />
+        </g>
+        <g className="m-bow" transform="rotate(12 50 16)">
+          <path d="M50 16 l-6 -3.6 v7.2 z M50 16 l6 -3.6 v7.2 z" />
+          <circle cx="50" cy="16" r="1.7" />
+        </g>
+      </g>
+      {/* kaki: kulit, kaus kaki, sepatu */}
+      <g className="m-leg m-leg-l">
+        <rect className="m-skin" x="30" y="57" width="5" height="5" rx="2" />
+        <rect className="m-sock" x="29.6" y="60" width="5.8" height="4" rx="2" />
+        <rect className="m-shoe" x="28.6" y="63.6" width="7.4" height="3.6" rx="1.8" />
+      </g>
+      <g className="m-leg m-leg-r">
+        <rect className="m-skin" x="37" y="57" width="5" height="5" rx="2" />
+        <rect className="m-sock" x="36.6" y="60" width="5.8" height="4" rx="2" />
+        <rect className="m-shoe" x="36" y="63.6" width="7.4" height="3.6" rx="1.8" />
       </g>
       {asleep && (
         <g className="m-zzz">
-          <text x="52" y="20" className="m-z m-z1">z</text>
-          <text x="58" y="12" className="m-z m-z2">Z</text>
+          <text x="54" y="20" className="m-z m-z1">z</text>
+          <text x="60" y="12" className="m-z m-z2">Z</text>
         </g>
       )}
     </svg>
@@ -110,6 +236,7 @@ export function Mascot() {
   const [pose, setPose] = useState<Pose>('idle');
   const [bubble, setBubble] = useState<Bubble | null>(null);
   const [vw, setVw] = useState(1024);
+  const [look, setLook] = useState<{ style: HairStyle; color: string }>({ style: 'lurus', color: HAIR_COLORS[0].hex });
 
   const rootRef = useRef<HTMLDivElement>(null);
   const liftRef = useRef<HTMLDivElement>(null);
@@ -125,12 +252,8 @@ export function Mascot() {
   const bubbleTimer = useRef<number | undefined>(undefined);
   const poseTimer = useRef<number | undefined>(undefined);
 
-  // Nilai terbaru untuk dibaca dari timer tanpa perlu memulai ulang efek.
-  const live = useRef<{ aiDlg: boolean; bubble: boolean; greet: () => string }>({
-    aiDlg,
-    bubble: !!bubble,
-    greet: () => '',
-  });
+
+  const live = useRef<{ aiDlg: typeof aiDlg; bubble: boolean; greet: () => string }>({ aiDlg, bubble: !!bubble, greet: () => '' });
   live.current = { aiDlg, bubble: !!bubble, greet: () => buildGreeting(events, todayKey, now) };
 
   useEffect(() => {
@@ -139,6 +262,24 @@ export function Mascot() {
     window.addEventListener('resize', on);
     return () => window.removeEventListener('resize', on);
   }, []);
+
+  // Muat & simpan gaya rambut pilihan (disimpan di browser).
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(LOOK_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      if (HAIR_STYLES.some((h) => h.id === v?.style) && /^#[0-9a-f]{6}$/i.test(v?.color ?? '')) setLook({ style: v.style, color: v.color });
+    } catch { /* abaikan */ }
+  }, []);
+  const changeLook = (patch: Partial<{ style: HairStyle; color: string }>) => {
+    setLook((cur) => {
+      const next = { ...cur, ...patch };
+      try { window.localStorage.setItem(LOOK_KEY, JSON.stringify(next)); } catch { /* abaikan */ }
+      return next;
+    });
+    setPoseFor('happy', 1200);
+  };
 
   const showBubble = useCallback((text: string, opts: { actions: boolean; ms: number }) => {
     window.clearTimeout(bubbleTimer.current);
@@ -310,6 +451,11 @@ export function Mascot() {
     fallTimer.current = window.setTimeout(() => setPoseFor('land', 750), ms);
   }
 
+  function openPicker() {
+    window.clearTimeout(bubbleTimer.current);
+    setBubble({ text: '', actions: false, picker: true });
+  }
+
   function openAi() {
     hideBubble();
     setAiDlg(true);
@@ -349,12 +495,31 @@ export function Mascot() {
             role="status"
             data-align={align}
             onPointerEnter={() => { hovering.current = true; window.clearTimeout(bubbleTimer.current); }}
-            onPointerLeave={() => { hovering.current = false; bubbleTimer.current = window.setTimeout(() => setBubble(null), 4000); }}
+            onPointerLeave={() => { hovering.current = false; if (!bubble.picker) bubbleTimer.current = window.setTimeout(() => setBubble(null), 4000); }}
           >
-            <p>{bubble.text}</p>
+            {bubble.picker ? (
+              <div className="m-picker">
+                <p className="m-ptitle">Model rambut</p>
+                <div className="m-chips">
+                  {HAIR_STYLES.map((h) => (
+                    <button key={h.id} className="m-chip" aria-pressed={look.style === h.id} onClick={() => changeLook({ style: h.id })}>{h.label}</button>
+                  ))}
+                </div>
+                <p className="m-ptitle">Warna rambut</p>
+                <div className="m-swatches">
+                  {HAIR_COLORS.map((c) => (
+                    <button key={c.hex} className="m-swatch" style={{ background: c.hex }} title={c.label} aria-label={c.label} aria-pressed={look.color === c.hex} onClick={() => changeLook({ color: c.hex })} />
+                  ))}
+                </div>
+                <div className="m-acts"><button className="btn primary small" onClick={hideBubble}>Selesai</button></div>
+              </div>
+            ) : (
+              <p>{bubble.text}</p>
+            )}
             {bubble.actions && (
               <div className="m-acts">
                 <button className="btn primary small" onClick={openAi}>Tanya AI ➤</button>
+                <button className="btn small" onClick={openPicker}>Ganti gaya 🎀</button>
                 <button className="btn small" onClick={hideBubble}>Nanti</button>
                 <button className="m-hide" onClick={hideForever}>Sembunyikan aku</button>
               </div>
@@ -366,7 +531,7 @@ export function Mascot() {
           aria-label="Buka asisten jadwal (AI)"
           title="Klik aku untuk minta bantuan AI. Angkat aku juga boleh!"
           data-pose={pose}
-          style={{ '--dir': dir } as CSSProperties}
+          style={{ '--dir': dir, '--m-hair': look.color } as CSSProperties}
           onPointerEnter={onEnter}
           onPointerLeave={() => { hovering.current = false; }}
           onPointerDown={onDown}
@@ -375,7 +540,7 @@ export function Mascot() {
           onPointerCancel={onUp}
           onClick={onClick}
         >
-          <Sprite pose={pose} />
+          <Sprite pose={pose} hair={look.style} />
         </button>
       </div>
     </div>
