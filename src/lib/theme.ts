@@ -79,6 +79,26 @@ export function accentFor(c1: string, mode: 'light' | 'dark') {
   return { accent: a, on };
 }
 
+/**
+ * Warna penanda "penting" (bulatan bintang): warna paling mencolok di palet.
+ * Tiap warna digeser dulu sampai cukup terbaca di atas kartu, lalu dipilih yang
+ * paling pekat (selisih kanal RGB terbesar). Warna pucat seperti kuning muda
+ * otomatis kalah karena setelah digelapkan jadi tidak mencolok lagi.
+ */
+export function starFor(colors: string[], mode: 'light' | 'dark') {
+  const surface = mode === 'dark' ? '#211d1f' : '#fffefc';
+  const toward = mode === 'dark' ? '#ffffff' : '#000000';
+  let best = colors[0], bestScore = -1;
+  for (const c of colors) {
+    let a = c;
+    for (let i = 0; i < 24 && contrast(a, surface) < 3; i++) a = mix(a, toward, 0.08);
+    const ch = rgb(a);
+    const score = Math.max(...ch) - Math.min(...ch);
+    if (score > bestScore) { bestScore = score; best = a; }
+  }
+  return best;
+}
+
 /* ---------- terapkan ke halaman ---------- */
 function resolveMode(m: ThemeMode): 'light' | 'dark' {
   if (m !== 'auto') return m;
@@ -91,7 +111,7 @@ export function applyTheme(pref: ThemePref) {
   const mode = resolveMode(pref.m);
   const colors = PALETTES[pref.p] ?? PALETTES[0];
   const { accent, on } = accentFor(colors[0], mode);
-  const vars: Record<string, string> = { '--accent': accent, '--on-accent': on };
+  const vars: Record<string, string> = { '--accent': accent, '--on-accent': on, '--star': starFor(colors, mode) };
   colors.forEach((c, i) => { vars[`--t${i + 1}`] = c; });
   for (const k of Object.keys(vars)) root.style.setProperty(k, vars[k]);
   root.dataset.mode = mode;
