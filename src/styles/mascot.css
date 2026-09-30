@@ -193,6 +193,15 @@
 }
 
 
+/* Rambut yang digambar langsung di Sprite (Mascot.tsx) — ikut warna pilihan */
+.m-hair {
+  fill: var(--m-hair, #3a2622);
+}
+
+.m-hair-d {
+  fill: color-mix(in srgb, var(--m-hair, #3a2622) 84%, #000);
+}
+
 /*
   Poni depan tidak memakai outline tambahan.
 */

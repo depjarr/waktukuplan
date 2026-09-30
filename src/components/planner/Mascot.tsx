@@ -150,11 +150,6 @@ function Sprite({ pose, hair }: { pose: Pose; hair: HairStyle }) {
           <stop offset="0%" stopColor="#fff4e8" />
           <stop offset="100%" stopColor="#f6c9a9" />
         </radialGradient>
-        <linearGradient id="m-hair-soft" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#211817" />
-          <stop offset="55%" stopColor="#30221f" />
-          <stop offset="100%" stopColor="#191414" />
-        </linearGradient>
         <linearGradient id="m-dress-soft" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#f7a9b8" />
           <stop offset="100%" stopColor="#ee8fa5" />
@@ -170,50 +165,40 @@ function Sprite({ pose, hair }: { pose: Pose; hair: HairStyle }) {
           <>
             <path
               d="M18 30 C13 42 15 55 20 67 C17 72 16 79 20 84 C24 79 25 69 24 58 L26 34 Z"
-              fill="url(#m-hair-soft)"
+              className="m-hair"
             />
             <path
               d="M78 30 C83 42 81 55 76 67 C79 72 80 79 76 84 C72 79 71 69 72 58 L70 34 Z"
-              fill="url(#m-hair-soft)"
+              className="m-hair"
             />
-            <circle cx="20" cy="70" r="4.2" fill="#2a1d1b" />
-            <circle cx="76" cy="70" r="4.2" fill="#2a1d1b" />
-            <circle cx="20" cy="78" r="3.6" fill="#2a1d1b" />
-            <circle cx="76" cy="78" r="3.6" fill="#2a1d1b" />
+            <circle cx="20" cy="70" r="4.2" className="m-hair-d" />
+            <circle cx="76" cy="70" r="4.2" className="m-hair-d" />
+            <circle cx="20" cy="78" r="3.6" className="m-hair-d" />
+            <circle cx="76" cy="78" r="3.6" className="m-hair-d" />
           </>
         ) : hair === 'twintail' ? (
           <>
-            <path d="M24 29 C13 25 9 38 13 53 C16 49 20 42 25 37 Z" fill="url(#m-hair-soft)" />
-            <path d="M72 29 C83 25 87 38 83 53 C80 49 76 42 71 37 Z" fill="url(#m-hair-soft)" />
-            <path d="M20 37 C14 49 16 62 21 72 L28 64 L27 39 Z" fill="url(#m-hair-soft)" />
-            <path d="M76 37 C82 49 80 62 75 72 L68 64 L69 39 Z" fill="url(#m-hair-soft)" />
+            <path d="M24 29 C13 25 9 38 13 53 C16 49 20 42 25 37 Z" className="m-hair" />
+            <path d="M72 29 C83 25 87 38 83 53 C80 49 76 42 71 37 Z" className="m-hair" />
+            <path d="M20 37 C14 49 16 62 21 72 L28 64 L27 39 Z" className="m-hair" />
+            <path d="M76 37 C82 49 80 62 75 72 L68 64 L69 39 Z" className="m-hair" />
           </>
         ) : hair === 'kuncir' ? (
           <>
-            <path d="M18 31 C11 41 14 59 22 73 L30 67 L27 35 Z" fill="url(#m-hair-soft)" />
-            <path d="M75 30 C84 24 87 36 82 45 C79 41 76 37 72 34 Z" fill="url(#m-hair-soft)" />
-            <path d="M72 36 C79 43 79 56 75 67 L68 61 L70 38 Z" fill="url(#m-hair-soft)" />
+            <path d="M18 31 C11 41 14 59 22 73 L30 67 L27 35 Z" className="m-hair" />
+            <path d="M75 30 C84 24 87 36 82 45 C79 41 76 37 72 34 Z" className="m-hair" />
+            <path d="M72 36 C79 43 79 56 75 67 L68 61 L70 38 Z" className="m-hair" />
           </>
         ) : hair === 'pendek' ? (
-          <path d="M18 29 C12 42 14 57 22 64 L30 61 L66 61 L74 64 C82 57 84 42 78 29 Z" fill="url(#m-hair-soft)" />
+          <path d="M18 29 C12 42 14 57 22 64 L30 61 L66 61 L74 64 C82 57 84 42 78 29 Z" className="m-hair" />
         ) : (
           <path
             d={straightHair
               ? "M17 29 C10 44 13 67 18 82 Q27 88 48 87 Q69 88 78 82 C83 67 86 44 79 29 Q70 13 48 12 Q26 13 17 29 Z"
               : "M17 29 C10 44 13 67 18 82 Q27 88 48 87 Q69 88 78 82 C83 67 86 44 79 29 Q70 13 48 12 Q26 13 17 29 Z"}
-            fill="url(#m-hair-soft)"
+            className="m-hair"
           />
         )}
-
-        {/* helaian rambut depan */}
-        <path
-          d="M17 30 C16 18 29 9 48 9 C67 9 80 18 79 30
-             C72 23 64 19 55 17 C51 21 47 24 43 26
-             C34 30 25 31 17 30 Z"
-          fill="url(#m-hair-soft)"
-        />
-        <path d="M19 30 C16 42 17 55 22 66 L28 63 C24 51 24 40 27 29 Z" fill="#251b19" />
-        <path d="M77 30 C80 42 79 55 74 66 L68 63 C72 51 72 40 69 29 Z" fill="#251b19" />
 
         {/* wajah besar */}
         <ellipse cx="48" cy="34" rx="29" ry="25" fill="url(#m-face-soft)" />
@@ -221,6 +206,17 @@ function Sprite({ pose, hair }: { pose: Pose; hair: HairStyle }) {
         {/* telinga */}
         <circle cx="19.8" cy="36" r="4.5" fill="#f4bd9e" />
         <circle cx="76.2" cy="36" r="4.5" fill="#f4bd9e" />
+
+        {/* poni & helaian samping — digambar SETELAH wajah supaya menutupi dahi (tidak botak) */}
+        <path
+          className="m-hair"
+          d="M18 32 C14 17 30 8 48 8 C66 8 82 17 78 32
+             C75 27 72 23 68 20.5 C64 22.5 59 22.5 55 19.5
+             C51 22.5 45 22.5 41 19.5 C36 22 30 23 25 21.5
+             C22 24 19.5 28 18 32 Z"
+        />
+        <path className="m-hair-d" d="M19 30 C16 42 17 55 22 66 L28 63 C24 51 24 40 27 29 Z" />
+        <path className="m-hair-d" d="M77 30 C80 42 79 55 74 66 L68 63 C72 51 72 40 69 29 Z" />
 
         {/* alis halus */}
         <path d="M32 25 Q36 23 40 25" fill="none" stroke="#8e6658" strokeWidth="0.7" strokeLinecap="round" opacity="0.65" />
