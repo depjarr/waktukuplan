@@ -26,7 +26,11 @@ const TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
       parameters: {
         type: 'object',
         properties: {
-          title: { type: 'string', description: 'Judul singkat' },
+          title: {
+            type: 'string',
+            description:
+              'Judul kegiatan, pakai kata-kata user apa adanya dan jangan dipotong. Buang hanya penanda waktu (besok, jam 5, dll). Contoh: "beli lauk buat puasa besok" -> "Beli lauk buat puasa".',
+          },
           date: { type: 'string', description: 'Format YYYY-MM-DD' },
           start_time: { type: 'string', description: 'HH:MM 24 jam' },
           end_time: { type: 'string', description: 'HH:MM 24 jam' },
@@ -63,7 +67,10 @@ const TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
         type: 'object',
         properties: {
           id: { type: 'string' },
-          title: { type: 'string' },
+          title: {
+            type: 'string',
+            description: 'Judul baru, pertahankan seluruh maksud kalimat user dan jangan dipotong.',
+          },
           date: { type: 'string' },
           start_time: { type: 'string' },
           end_time: { type: 'string' },
@@ -124,6 +131,7 @@ function systemPrompt(tz: string) {
     `Hari ini: ${t.weekday}, ${t.key}. Zona waktu user: ${tz}.`,
     'Hitung tanggal relatif (besok, lusa, Jumat depan) dari hari ini. Jam pakai format 24 jam.',
     'Jangan mengarang id. Untuk hapus/ubah/selesaikan, panggil list_events dulu.',
+    'Untuk judul jadwal, pertahankan seluruh maksud kalimat user (termasuk tujuan seperti "buat puasa"). Jangan meringkas berlebihan; buang hanya kata waktu yang sudah masuk ke tanggal/jam.',
     'Balas singkat (1-2 kalimat) santai dalam bahasa Indonesia tanpa markdown.',
   ].join('\n');
 }
