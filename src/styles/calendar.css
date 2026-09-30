@@ -28,7 +28,9 @@
 .chead{display:flex;align-items:center;justify-content:space-between}
 .num{font:500 13px var(--ui);color:var(--ink2);min-width:22px;height:22px;border-radius:50%;display:grid;place-items:center;margin:3px 0 0 3px}
 .today .num{background:var(--accent);color:var(--on-accent)}
-/* bulatan bintang: ada jadwal penting di tanggal ini */
+/* bulatan bintang: ada jadwal penting di tanggal ini. Selalu merah, tidak ikut tema. */
+:root{--star:#E11D2E}
+:root[data-mode="dark"]{--star:#FF5A64}
 .num.star{outline:2.5px solid var(--star,var(--pink-d));outline-offset:2px;font-weight:700;background:color-mix(in srgb,var(--star,var(--pink-d)) 18%,transparent)}
 .today .num.star{background:var(--accent)}
 .cnt{font-size:11px;background:var(--accent);color:var(--on-accent);border-radius:var(--r1);padding:0 7px;font-weight:500}
