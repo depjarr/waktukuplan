@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   if (message.length > 600) {
     return NextResponse.json(
       { error: 'Pesan terlalu panjang (maks 600 huruf)' },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   } else if (allowed === false) {
     return NextResponse.json(
       { error: 'Kamu sudah kirim banyak pesan ke AI. Coba lagi dalam beberapa menit ya.' },
-      { status: 429 },
+      { status: 429 }
     );
   }
 
@@ -57,10 +57,13 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     console.error('[ai]', err);
 
-    if (err instanceof AiRateLimitError) {
+    if (
+      err instanceof AiRateLimitError ||
+      (err instanceof Error && (err.message.includes('429') || err.message.includes('rate limit')))
+    ) {
       return NextResponse.json(
-        { error: 'Kuota AI gratis sedang penuh, coba lagi beberapa saat lagi' },
-        { status: 429 },
+        { error: 'Kuota AI sedang penuh, coba lagi dalam beberapa saat ya.' },
+        { status: 429 }
       );
     }
 
@@ -70,14 +73,7 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json(
         { error: 'Respon AI membutuhkan waktu terlalu lama. Silakan coba lagi.' },
-        { status: 504 },
-      );
-    }
-
-    if (err instanceof Error && err.message.includes('-> 503')) {
-      return NextResponse.json(
-        { error: 'Server AI sedang ramai. Coba lagi beberapa detik lagi ya.' },
-        { status: 503 },
+        { status: 504 }
       );
     }
 
@@ -86,7 +82,7 @@ export async function POST(req: Request) {
         error: 'AI sedang bermasalah, coba lagi sebentar',
         detail: err instanceof Error ? err.message : String(err),
       },
-      { status: 502 },
+      { status: 502 }
     );
   }
 }
