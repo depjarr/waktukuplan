@@ -1,0 +1,87 @@
+/*
+  Warna dasar tidak ditulis satu-satu lagi. Lima warna palet (--t1..--t5) diisi oleh
+  src/lib/theme.ts (pilihan user di tombol "Tema"), lalu semua warna lain diturunkan
+  dari sana. Nilai di bawah = palet bawaan, dipakai sebelum JavaScript jalan.
+
+  Nama variabel lama (--pink, --mint, dst.) dipertahankan supaya file css lain tidak perlu diubah,
+  tapi artinya sekarang "warna aksen" dan "warna kategori", bukan lagi merah muda/hijau betulan.
+    --pink-d / --accent : warna utama (tombol, hari ini)
+    --pink-l / --pink    : tint aksen (terpilih, hover)
+    --sky --peach --lilac --sun --mint : warna kategori Meeting / Liburan / Konser / Makan / Tugas
+    --butter             : kertas catatan
+*/
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+
+  --t1:#C2416A; --t2:#8FBFE0; --t3:#F5B57A; --t4:#B9A3E3; --t5:#F2DC6B;
+  --accent:#C2416A; --on-accent:#FFFFFF;
+
+  --bg:#ffffff;
+  --paper:#ffffff;
+  --cell:#f6f6f4;
+  --ink:#2b2725;
+  --ink2:#7a7370;
+  --line:#e9e6e2;
+
+  --pink-d:var(--accent);
+  --pink:color-mix(in srgb,var(--t1) 38%,var(--paper));
+  --pink-l:color-mix(in srgb,var(--t1) 15%,var(--paper));
+  --sky:color-mix(in srgb,var(--t2) 42%,var(--paper));
+  --peach:color-mix(in srgb,var(--t3) 42%,var(--paper));
+  --lilac:color-mix(in srgb,var(--t4) 42%,var(--paper));
+  --sun:color-mix(in srgb,var(--t5) 48%,var(--paper));
+  --mint:color-mix(in srgb,var(--t2) 26%,var(--paper));
+  --mint-d:color-mix(in srgb,var(--t2) 55%,var(--ink));
+  --butter:color-mix(in srgb,var(--t5) 34%,var(--paper));
+
+  /* bentuk: sudut kecil, bayangan tipis seperti tumpukan kertas, bukan kapsul melayang */
+  --r1:6px; --r2:10px;
+  --shadow:2px 3px 0 color-mix(in srgb,var(--ink) 9%,transparent);
+
+  --serif:'Lora',Georgia,'Times New Roman',serif;
+  --hand:'Gaegu','Segoe Print','Comic Sans MS',cursive;
+  --ui:'Karla','Segoe UI',system-ui,-apple-system,sans-serif;
+}
+:root[data-mode="dark"]{
+  color-scheme:dark;
+  --accent:#F29DB5; --on-accent:#1c1517;
+  --bg:#141316;
+  --paper:#1b1a1d;
+  --cell:#212023;
+  --ink:#efece9;
+  --ink2:#a8a29d;
+  --line:#302f32;
+
+  --pink:color-mix(in srgb,var(--t1) 42%,var(--paper));
+  --pink-l:color-mix(in srgb,var(--t1) 20%,var(--paper));
+  --sky:color-mix(in srgb,var(--t2) 34%,var(--paper));
+  --peach:color-mix(in srgb,var(--t3) 34%,var(--paper));
+  --lilac:color-mix(in srgb,var(--t4) 34%,var(--paper));
+  --sun:color-mix(in srgb,var(--t5) 30%,var(--paper));
+  --mint:color-mix(in srgb,var(--t2) 22%,var(--paper));
+  --mint-d:color-mix(in srgb,var(--t2) 60%,var(--ink));
+  --butter:color-mix(in srgb,var(--t5) 22%,var(--paper));
+  --shadow:2px 3px 0 rgba(0,0,0,.35);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
+body{margin:0;background-color:var(--bg);color:var(--ink);font:400 15px/1.45 var(--ui);-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,transform .1s ease}
+input,select,textarea{font:inherit;color:inherit;transition:border-color .15s ease,box-shadow .15s ease}
+/* panah dropdown modern, warnanya ikut teks (bukan panah bawaan browser yang kaku) */
+select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-repeat:no-repeat;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);
+  background-position:calc(100% - 18px) calc(50% - 3px),calc(100% - 13px) calc(50% - 3px);
+  background-size:5px 5px,5px 5px;padding-right:32px!important;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+.app{max-width:1520px;margin:0 auto}
+.ico-svg{flex:none;vertical-align:-3px}
+
+
+/* categories */
+.cat-Meeting{--tone:var(--sky)}.cat-Liburan{--tone:var(--peach)}.cat-Konser{--tone:var(--lilac)}
+.cat-Makan{--tone:var(--sun)}.cat-Tugas{--tone:var(--mint)}.cat-Personal{--tone:var(--pink-l)}.cat-Lainnya{--tone:var(--line)}
