@@ -193,13 +193,68 @@
 }
 
 
-/* Rambut yang digambar langsung di Sprite (Mascot.tsx) — ikut warna pilihan */
+/* Gaya gambar doodle: garis tepi tipis berwarna cokelat tua */
+.m-sprite {
+  --m-line: #2b211f;
+}
+
+.m-ol,
+.m-hair,
+.m-hair-d {
+  stroke: var(--m-line);
+  stroke-width: 1.05;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Rambut ikut warna pilihan (--m-hair diisi dari Mascot.tsx) */
 .m-hair {
   fill: var(--m-hair, #3a2622);
 }
 
+/* Rambut bagian belakang sedikit lebih gelap supaya terasa berlapis */
 .m-hair-d {
-  fill: color-mix(in srgb, var(--m-hair, #3a2622) 84%, #000);
+  fill: color-mix(in srgb, var(--m-hair, #3a2622) 80%, #000);
+}
+
+.m-ln {
+  fill: none;
+  stroke: var(--m-line);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* garis kilau tipis di rambut */
+.m-strand {
+  fill: none;
+  stroke: color-mix(in srgb, var(--m-hair, #3a2622) 50%, #fff);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+/* jahitan puffer jaket */
+.m-quilt {
+  fill: none;
+  stroke: color-mix(in srgb, var(--m-line) 45%, transparent);
+  stroke-width: 0.6;
+  stroke-dasharray: 1.6 1.6;
+  stroke-linecap: round;
+}
+
+.m-clip-p { fill: #f58fa5; }
+.m-clip-y { fill: #f7c948; }
+
+.m-spark {
+  fill: #f7c948;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: m-float 2.6s ease-in-out infinite;
+}
+
+.m-spark2 {
+  animation-delay: -1.2s;
 }
 
 /*

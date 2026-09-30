@@ -22,8 +22,9 @@ import { usePlanner } from './PlannerProvider';
 type Pose = 'idle' | 'walk' | 'sleep' | 'happy' | 'held' | 'fall' | 'land';
 interface Bubble { text: string; actions: boolean; picker?: boolean }
 
-type HairStyle = 'lurus' | 'kepang' | 'kuncir' | 'twintail' | 'pendek' | 'cepol';
+type HairStyle = 'gelombang' | 'lurus' | 'kepang' | 'kuncir' | 'twintail' | 'pendek' | 'cepol';
 const HAIR_STYLES: { id: HairStyle; label: string }[] = [
+  { id: 'gelombang', label: 'Bergelombang' },
   { id: 'lurus', label: 'Lurus panjang' },
   { id: 'kepang', label: 'Kepang dua' },
   { id: 'kuncir', label: 'Kuncir' },
@@ -66,283 +67,209 @@ function buildGreeting(events: EventRow[], todayKey: string, now: Date | null): 
   return `${hi}, aku ${NAME}! Ada ${left.length} jadwal lagi hari ini. Berikutnya: ${clip(next.title, 36)}${when}.`;
 }
 
-/** Rambut bagian belakang (di belakang kepala & baju). Beda tiap model. */
+/** Kerangka kepala belakang (dipakai beberapa model rambut). */
+const HAIR_CAP = 'M22 40 C19 15 33 7 48 7 C63 7 77 15 74 40 C75 46 73 50 70 52 L26 52 C23 50 21 46 22 40 Z';
+const FLIP = 'translate(96 0) scale(-1 1)';
+
+/** Rambut BELAKANG (di belakang kepala & baju). Beda tiap model. */
 function HairBack({ hair }: { hair: HairStyle }) {
-  const cap = 'M17 26 C15 34 17 38 21 41.5 Q36 45 51 41.5 C55 38 57 34 55 26 Z';
   switch (hair) {
+    case 'lurus':
+      return <path className="m-hair-d" d="M22 36 C19 15 33 7 48 7 C63 7 77 15 74 36 C78 50 79 64 77 80 Q72 83 66 82 L30 82 Q24 83 19 80 C17 64 18 50 22 36 Z" />;
     case 'kepang':
       return (
         <>
-          <path className="m-hair-b" d={cap} />
-          <g className="m-hair-b">
-            <ellipse cx="19" cy="44" rx="3.4" ry="2.8" /><ellipse cx="18" cy="49" rx="3.4" ry="2.8" />
-            <ellipse cx="19" cy="54" rx="3.4" ry="2.8" /><ellipse cx="18" cy="59" rx="3.2" ry="2.6" />
-            <ellipse cx="53" cy="44" rx="3.4" ry="2.8" /><ellipse cx="54" cy="49" rx="3.4" ry="2.8" />
-            <ellipse cx="53" cy="54" rx="3.4" ry="2.8" /><ellipse cx="54" cy="59" rx="3.2" ry="2.6" />
-          </g>
-          <circle className="m-tie" cx="18" cy="62.4" r="1.7" />
-          <circle className="m-tie" cx="54" cy="62.4" r="1.7" />
+          <path className="m-hair-d" d={HAIR_CAP} />
+          {[50, 56, 62, 68, 74, 80].map((cy, i) => (
+            <g key={cy}>
+              <ellipse className="m-hair-d" cx={i % 2 ? 21.5 : 22.5} cy={cy} rx="4.3" ry="3.9" />
+              <ellipse className="m-hair-d" cx={i % 2 ? 74.5 : 73.5} cy={cy} rx="4.3" ry="3.9" />
+            </g>
+          ))}
         </>
       );
     case 'kuncir':
       return (
         <>
-          <path className="m-hair-b" d={cap} />
-          <path className="m-hair-b" d="M50 15 C66 13 68 38 62 57 C58 52 57 40 52 28 Z" />
+          <path className="m-hair-d" d="M72 24 C87 22 91 40 86 56 C84 64 86 70 82 77 C77 70 77 62 77 54 C77 44 75 36 69 32 Z" />
+          <path className="m-hair-d" d={HAIR_CAP} />
         </>
       );
     case 'twintail':
       return (
         <>
-          <path className="m-hair-b" d={cap} />
-          <path className="m-hair-b" d="M21 19 C8 18 4.5 40 9 58 C14 53 16 40 20 29 Z" />
-          <path className="m-hair-b" d="M51 19 C64 18 67.5 40 63 58 C58 53 56 40 52 29 Z" />
+          <path className="m-hair-d" d="M27 18 C14 14 6 34 10 52 C11 62 9 70 12 77 C18 70 20 62 21 54 C22 45 26 38 31 30 Z" />
+          <path className="m-hair-d" d="M27 18 C14 14 6 34 10 52 C11 62 9 70 12 77 C18 70 20 62 21 54 C22 45 26 38 31 30 Z" transform={FLIP} />
+          <path className="m-hair-d" d={HAIR_CAP} />
         </>
       );
     case 'pendek':
-      return <path className="m-hair-b" d="M15.5 27 C12.5 37 13.5 45 16.5 49.5 Q36 54 55.5 49.5 C58.5 45 59.5 37 56.5 27 Z" />;
+      return <path className="m-hair-d" d="M22 36 C19 15 33 7 48 7 C63 7 77 15 74 36 C77 46 77 54 73 60 Q48 67 23 60 C19 54 19 46 22 36 Z" />;
     case 'cepol':
       return (
         <>
-          <path className="m-hair-b" d={cap} />
-          <circle className="m-hair-b" cx="36" cy="8.5" r="6.6" />
+          <circle className="m-hair-d" cx="48" cy="6.5" r="7.5" />
+          <path className="m-hair-d" d={HAIR_CAP} />
         </>
       );
-    default:
-      return <path className="m-hair-b" d="M16 26 C12.5 38 13.5 51 16.5 58.5 Q25 61.5 36 60.5 Q47 61.5 55.5 58.5 C58.5 51 59.5 38 56 26 Z" />;
+    default: // gelombang
+      return (
+        <path
+          className="m-hair-d"
+          d="M22 36 C19 15 33 7 48 7 C63 7 77 15 74 36 C80 46 82 57 78 64 C83 69 82 76 77 79
+             C73 76 70 72 69 66 L66 44 L30 44 L27 66 C26 72 23 76 19 79 C14 76 13 69 18 64 C14 57 16 46 22 36 Z"
+        />
+      );
   }
 }
 
-/** Helai rambut di samping wajah (di depan kepala). */
-function HairSide({ hair }: { hair: HairStyle }) {
-  const long = hair === 'lurus';
-  const mid = hair === 'pendek';
-  const l = long ? 'M16.8 27 C15 37 16.5 46 19.5 52.5 C21.6 45 21.4 36 23 28.5 Z'
-    : mid ? 'M16.8 27 C15 35 16 42 18.5 46.5 C21 41 21.4 35 23 28.5 Z'
-    : 'M16.8 27 C15.5 33 16.5 38 19 41 C20.8 36 21.4 32 23 28.5 Z';
-  const r = long ? 'M55.2 27 C57 37 55.5 46 52.5 52.5 C50.4 45 50.6 36 49 28.5 Z'
-    : mid ? 'M55.2 27 C57 35 56 42 53.5 46.5 C51 41 50.6 35 49 28.5 Z'
-    : 'M55.2 27 C56.5 33 55.5 38 53 41 C51.2 36 50.6 32 49 28.5 Z';
-  return (
-    <>
-      <path className="m-hair-f" d={l} />
-      <path className="m-hair-f" d={r} />
-    </>
-  );
+/** Ikat rambut (digambar di depan, supaya tidak tertutup poni). */
+function HairTies({ hair }: { hair: HairStyle }) {
+  if (hair === 'kepang') {
+    return (
+      <>
+        <circle className="m-tie m-ol" cx="22" cy="84.5" r="2.3" />
+        <circle className="m-tie m-ol" cx="74" cy="84.5" r="2.3" />
+      </>
+    );
+  }
+  if (hair === 'twintail') {
+    return (
+      <>
+        <ellipse className="m-tie m-ol" cx="27" cy="20.5" rx="2.6" ry="2.3" />
+        <ellipse className="m-tie m-ol" cx="69" cy="20.5" rx="2.6" ry="2.3" />
+      </>
+    );
+  }
+  if (hair === 'kuncir') return <ellipse className="m-tie m-ol" cx="72.5" cy="28" rx="2.5" ry="2.7" />;
+  return null;
 }
 
-/** Gambar karakternya (SVG): anak perempuan chibi berambut panjang. Warna baju/aksesori ikut tema lewat variabel CSS di mascot.css. */
+/**
+ * Gambar karakternya (SVG), gaya ilustrasi doodle: garis tepi tipis, kepala bulat besar,
+ * mata titik, pipi merah muda, poni tipis, kaos dengan rok overall pink, dan jepit rambut.
+ * Warna rambut ikut pilihan (variabel CSS --m-hair); garis tepi lewat --m-line (lihat mascot.css).
+ */
 function Sprite({ pose, hair }: { pose: Pose; hair: HairStyle }) {
   const asleep = pose === 'sleep';
   const scared = pose === 'held' || pose === 'fall';
   const joy = pose === 'land';
 
-  // Sprite digambar langsung sebagai SVG supaya tampilannya konsisten
-  // dengan karakter referensi: kepala besar, rambut hitam panjang,
-  // dress pink polkadot, jepit oval pink, dan bunga lily pink.
-  const straightHair =
-    hair === 'lurus' || hair === 'pendek' || hair === 'cepol';
+  // Helai samping wajah: panjangnya beda tiap model.
+  const L = hair === 'pendek' ? 54 : hair === 'cepol' || hair === 'kuncir' ? 56 : 63;
+  const lock = `M22 33 C19 ${L - 18} 20 ${L - 8} 23.5 ${L} C27 ${L - 7} 28 ${L - 16} 27.5 ${L - 24} C27 ${L - 30} 26 31 24.5 30 Z`;
+
+  // Poni tipis dengan belahan sedikit ke kanan (dahi kelihatan sedikit).
+  const bangs =
+    'M21 40 C18 15 33 7 48 7 C63 7 78 15 75 40 C72 34 70 28 67 24 C64 26 61 26 58 22 C56 24 54 22 52 17 ' +
+    'C50 24 47 28 44 28 C42 27 40 27 37 29 C35 27 32 28 29 30 C27 29 25 31 24 34 C23 36 22 38 21 40 Z';
 
   return (
     <svg className="m-sprite" viewBox="0 0 96 96" aria-hidden="true" focusable="false">
-      <defs>
-        <radialGradient id="m-face-soft" cx="50%" cy="42%" r="65%">
-          <stop offset="0%" stopColor="#fff4e8" />
-          <stop offset="100%" stopColor="#f6c9a9" />
-        </radialGradient>
-        <linearGradient id="m-dress-soft" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#f7a9b8" />
-          <stop offset="100%" stopColor="#ee8fa5" />
-        </linearGradient>
-      </defs>
-
-      {/* bayangan tipis */}
       <ellipse className="m-shadow" cx="48" cy="93" rx="18" ry="2.4" />
 
       <g className="m-body-g">
-        {/* RAMBUT BELAKANG — sangat panjang sampai hampir ke bawah rok */}
-        {hair === 'kepang' ? (
-          <>
-            <path
-              d="M18 30 C13 42 15 55 20 67 C17 72 16 79 20 84 C24 79 25 69 24 58 L26 34 Z"
-              className="m-hair"
-            />
-            <path
-              d="M78 30 C83 42 81 55 76 67 C79 72 80 79 76 84 C72 79 71 69 72 58 L70 34 Z"
-              className="m-hair"
-            />
-            <circle cx="20" cy="70" r="4.2" className="m-hair-d" />
-            <circle cx="76" cy="70" r="4.2" className="m-hair-d" />
-            <circle cx="20" cy="78" r="3.6" className="m-hair-d" />
-            <circle cx="76" cy="78" r="3.6" className="m-hair-d" />
-          </>
-        ) : hair === 'twintail' ? (
-          <>
-            <path d="M24 29 C13 25 9 38 13 53 C16 49 20 42 25 37 Z" className="m-hair" />
-            <path d="M72 29 C83 25 87 38 83 53 C80 49 76 42 71 37 Z" className="m-hair" />
-            <path d="M20 37 C14 49 16 62 21 72 L28 64 L27 39 Z" className="m-hair" />
-            <path d="M76 37 C82 49 80 62 75 72 L68 64 L69 39 Z" className="m-hair" />
-          </>
-        ) : hair === 'kuncir' ? (
-          <>
-            <path d="M18 31 C11 41 14 59 22 73 L30 67 L27 35 Z" className="m-hair" />
-            <path d="M75 30 C84 24 87 36 82 45 C79 41 76 37 72 34 Z" className="m-hair" />
-            <path d="M72 36 C79 43 79 56 75 67 L68 61 L70 38 Z" className="m-hair" />
-          </>
-        ) : hair === 'pendek' ? (
-          <path d="M18 29 C12 42 14 57 22 64 L30 61 L66 61 L74 64 C82 57 84 42 78 29 Z" className="m-hair" />
-        ) : (
-          <path
-            d={straightHair
-              ? "M17 29 C10 44 13 67 18 82 Q27 88 48 87 Q69 88 78 82 C83 67 86 44 79 29 Q70 13 48 12 Q26 13 17 29 Z"
-              : "M17 29 C10 44 13 67 18 82 Q27 88 48 87 Q69 88 78 82 C83 67 86 44 79 29 Q70 13 48 12 Q26 13 17 29 Z"}
-            className="m-hair"
-          />
-        )}
+        <HairBack hair={hair} />
 
-        {/* wajah besar */}
-        <ellipse cx="48" cy="34" rx="29" ry="25" fill="url(#m-face-soft)" />
+        {/* kaki: kaus kaki putih + sepatu pink */}
+        <g className="m-leg m-leg-l">
+          <rect className="m-ol" x="39.5" y="80" width="6" height="9.5" rx="2.4" fill="#fff7f2" />
+          <path className="m-ol" fill="#ee94aa" d="M38.6 89 Q42.5 87.6 46.4 89 L47 93 Q42.5 95 38 93 Z" />
+        </g>
+        <g className="m-leg m-leg-r">
+          <rect className="m-ol" x="50.5" y="80" width="6" height="9.5" rx="2.4" fill="#fff7f2" />
+          <path className="m-ol" fill="#ee94aa" d="M49.6 89 Q53.5 87.6 57.4 89 L58 93 Q53.5 95 49 93 Z" />
+        </g>
 
-        {/* telinga */}
-        <circle cx="19.8" cy="36" r="4.5" fill="#f4bd9e" />
-        <circle cx="76.2" cy="36" r="4.5" fill="#f4bd9e" />
+        {/* kaos krem */}
+        <path className="m-ol" fill="#fffaf1" d="M37 57 C33 60 32 68 33 76 L63 76 C64 68 63 60 59 57 Q48 62 37 57 Z" />
 
-        {/* poni & helaian samping — digambar SETELAH wajah supaya menutupi dahi (tidak botak) */}
-        <path
-          className="m-hair"
-          d="M18 32 C14 17 30 8 48 8 C66 8 82 17 78 32
-             C75 27 72 23 68 20.5 C64 22.5 59 22.5 55 19.5
-             C51 22.5 45 22.5 41 19.5 C36 22 30 23 25 21.5
-             C22 24 19.5 28 18 32 Z"
-        />
-        <path className="m-hair-d" d="M19 30 C16 42 17 55 22 66 L28 63 C24 51 24 40 27 29 Z" />
-        <path className="m-hair-d" d="M77 30 C80 42 79 55 74 66 L68 63 C72 51 72 40 69 29 Z" />
+        {/* rok overall pink */}
+        <path className="m-ol" fill="#f9b9c8" d="M36 66 Q48 69.5 60 66 C62 71 65 76 67.5 81.5 Q64 84 60 82 Q56 84.5 52 82.5 Q48 85 44 82.5 Q40 84.5 36 82 Q32 84 28.5 81.5 C31 76 34 71 36 66 Z" />
+        <path className="m-quilt" d="M42 71 L39.5 81" />
+        <path className="m-quilt" d="M48 71.5 L48 83" />
+        <path className="m-quilt" d="M54 71 L56.5 81" />
+        <path className="m-ol" fill="#f9b9c8" d="M39.5 63 L56.5 63 L58 68 Q48 70.5 38 68 Z" />
+        <path className="m-ol" fill="#f9b9c8" d="M38.5 56 L42.5 56.5 L43.5 64 L39.5 64 Z" />
+        <path className="m-ol" fill="#f9b9c8" d="M53.5 56.5 L57.5 56 L56.5 64 L52.5 64 Z" />
+        <circle cx="41.5" cy="62" r="1.1" fill="#f7c948" />
+        <circle cx="54.5" cy="62" r="1.1" fill="#f7c948" />
 
-        {/* alis halus */}
-        <path d="M32 25 Q36 23 40 25" fill="none" stroke="#8e6658" strokeWidth="0.7" strokeLinecap="round" opacity="0.65" />
-        <path d="M56 25 Q60 23 64 25" fill="none" stroke="#8e6658" strokeWidth="0.7" strokeLinecap="round" opacity="0.65" />
+        {/* lengan: lengan kaos pendek */}
+        <g className="m-arm m-arm-l">
+          <circle className="m-ol" cx="31.5" cy="79.5" r="2.5" fill="#ffe7d8" />
+          <path className="m-ol" fill="#ffe7d8" d="M33 62 C30 66 29 72 29.5 77 L34 77.5 C34.5 72 36 67 37 63 Z" />
+          <path className="m-ol" fill="#fffaf1" d="M37.5 59 C32 58 29.5 62 30 66.5 L37 67.5 L38.5 62 Z" />
+        </g>
+        <g className="m-arm m-arm-r">
+          <circle className="m-ol" cx="64.5" cy="79.5" r="2.5" fill="#ffe7d8" />
+          <path className="m-ol" fill="#ffe7d8" d="M63 62 C66 66 67 72 66.5 77 L62 77.5 C61.5 72 60 67 59 63 Z" />
+          <path className="m-ol" fill="#fffaf1" d="M58.5 59 C64 58 66.5 62 66 66.5 L59 67.5 L57.5 62 Z" />
+        </g>
+
+        {/* wajah bulat besar */}
+        <ellipse className="m-ol" cx="48" cy="37" rx="25" ry="21" fill="#fff0e4" />
+
+        {/* pipi */}
+        <ellipse cx="30.5" cy="46.5" rx="5.2" ry="3.3" fill="#f5989f" opacity="0.6" />
+        <ellipse cx="65.5" cy="46.5" rx="5.2" ry="3.3" fill="#f5989f" opacity="0.6" />
 
         {asleep ? (
           <>
-            <path d="M29 34 Q35 39 41 34" fill="none" stroke="#30221f" strokeWidth="1.7" strokeLinecap="round" />
-            <path d="M55 34 Q61 39 67 34" fill="none" stroke="#30221f" strokeWidth="1.7" strokeLinecap="round" />
-            <circle cx="48" cy="43" r="1.2" fill="#9f6d63" />
+            <path className="m-ln" d="M34 41 Q38 44.5 42 41" />
+            <path className="m-ln" d="M54 41 Q58 44.5 62 41" />
+            <circle cx="48" cy="47" r="1.1" fill="#d98b80" />
           </>
         ) : scared ? (
           <>
-            <ellipse cx="36" cy="34" rx="6.3" ry="7.2" fill="#251c1b" />
-            <ellipse cx="60" cy="34" rx="6.3" ry="7.2" fill="#251c1b" />
-            <circle cx="38.2" cy="31.2" r="2" fill="#fff" />
-            <circle cx="62.2" cy="31.2" r="2" fill="#fff" />
-            <circle cx="48" cy="45" r="2.4" fill="#8d5e5a" />
-            <path d="M73 29 q3 3.5 0 6" fill="none" stroke="#78a7c7" strokeWidth="1.1" strokeLinecap="round" />
+            <ellipse cx="38" cy="41" rx="3" ry="3.6" fill="#2b211f" />
+            <ellipse cx="58" cy="41" rx="3" ry="3.6" fill="#2b211f" />
+            <circle cx="39" cy="39.6" r="1" fill="#fff" />
+            <circle cx="59" cy="39.6" r="1" fill="#fff" />
+            <ellipse cx="48" cy="49" rx="1.7" ry="2.1" fill="#c9756f" />
+            <path d="M70 31 q3 3.6 0 5.8 q-3 -2.2 0 -5.8 z" fill="#9fd0ee" />
           </>
         ) : joy ? (
           <>
-            <path d="M28.5 35 Q35 29 41 35" fill="none" stroke="#30221f" strokeWidth="2" strokeLinecap="round" />
-            <path d="M55 35 Q61 29 67.5 35" fill="none" stroke="#30221f" strokeWidth="2" strokeLinecap="round" />
-            <path d="M44 43 Q48 47 52 43" fill="none" stroke="#9b625d" strokeWidth="1.1" strokeLinecap="round" />
+            <path className="m-ln" d="M34.5 42.5 Q38 37.5 41.5 42.5" />
+            <path className="m-ln" d="M54.5 42.5 Q58 37.5 61.5 42.5" />
+            <path className="m-ol" fill="#f27f86" d="M43.5 46 Q48 53 52.5 46 Z" />
           </>
         ) : (
           <>
-            {/* mata super besar dan glossy seperti ilustrasi referensi */}
-            <ellipse cx="36" cy="34" rx="7.5" ry="8.8" fill="#241b1a" />
-            <ellipse cx="60" cy="34" rx="7.5" ry="8.8" fill="#241b1a" />
-            <circle cx="38.5" cy="30.6" r="2.4" fill="#fff" />
-            <circle cx="62.5" cy="30.6" r="2.4" fill="#fff" />
-            <circle cx="34.2" cy="36.7" r="1" fill="#fff" opacity="0.8" />
-            <circle cx="58.2" cy="36.7" r="1" fill="#fff" opacity="0.8" />
-            <path d="M28.5 27.5 l-2.2 -1.5 M30 25.5 l-1.2 -2" fill="none" stroke="#30221f" strokeWidth="1.2" strokeLinecap="round" />
-            <path d="M67.5 27.5 l2.2 -1.5 M66 25.5 l1.2 -2" fill="none" stroke="#30221f" strokeWidth="1.2" strokeLinecap="round" />
-            <path d="M44.8 43 Q48 44.2 51.2 43" fill="none" stroke="#8c5e57" strokeWidth="0.8" strokeLinecap="round" />
+            <circle cx="38" cy="41" r="2.5" fill="#2b211f" />
+            <circle cx="58" cy="41" r="2.5" fill="#2b211f" />
+            <circle cx="38.8" cy="40.1" r="0.75" fill="#fff" />
+            <circle cx="58.8" cy="40.1" r="0.75" fill="#fff" />
+            <path className="m-ln" d="M35.3 39.3 l-1.8 -1.2 M60.7 39.3 l1.8 -1.2" />
+            <circle cx="48" cy="44.2" r="0.7" fill="#d98b80" />
+            <path className="m-ln" d="M45 46.6 Q48 49.6 51 46.6" />
           </>
         )}
 
-        {/* pipi merah muda + freckles */}
-        <ellipse cx="28" cy="43" rx="7.1" ry="4.1" fill="#f39ca9" opacity="0.46" />
-        <ellipse cx="68" cy="43" rx="7.1" ry="4.1" fill="#f39ca9" opacity="0.46" />
-        <g fill="#c97872" opacity="0.58">
-          <circle cx="24.5" cy="42.2" r="0.45" /><circle cx="27" cy="44" r="0.42" />
-          <circle cx="30" cy="42.4" r="0.4" /><circle cx="32.3" cy="44.2" r="0.35" />
-          <circle cx="63.7" cy="42.2" r="0.4" /><circle cx="66.5" cy="44" r="0.42" />
-          <circle cx="69.3" cy="42.4" r="0.45" /><circle cx="72" cy="44" r="0.35" />
+        {/* poni tipis + helai samping (digambar setelah wajah) */}
+        <path className="m-hair" d={bangs} />
+        <path className="m-strand" d="M38 11 C34 15 32 20 31 26" />
+        <path className="m-strand" d="M58 10 C61 14 62 18 62 22" />
+        <path className="m-hair" d={lock} />
+        <path className="m-hair" d={lock} transform={FLIP} />
+        <path className="m-strand" d="M24 40 C23 48 24 54 25 58" />
+        <path className="m-strand" d="M72 40 C73 48 72 54 71 58" />
+
+        <HairTies hair={hair} />
+
+        {/* jepit rambut */}
+        <rect className="m-ol m-clip-p" x="56" y="14" width="11" height="4" rx="2" transform="rotate(22 61.5 16)" />
+        {hair !== 'twintail' && <rect className="m-ol m-clip-y" x="60" y="20.5" width="10" height="3.8" rx="1.9" transform="rotate(18 65 22.4)" />}
+        <rect className="m-ol" fill="#fffaf2" x="26" y="23" width="8" height="3.6" rx="1.8" transform="rotate(-28 30 24.8)" />
+        <circle cx="32.2" cy="22.2" r="1.3" fill="#a9d8b5" />
+
+        {/* kilau kecil */}
+        <g className="m-spark">
+          <path transform="translate(86 24) scale(0.9)" d="M0 -4 Q0.8 -0.8 4 0 Q0.8 0.8 0 4 Q-0.8 0.8 -4 0 Q-0.8 -0.8 0 -4 Z" />
         </g>
-
-        {/* jepit oval pink di kiri */}
-        <g transform="rotate(-18 25 21)">
-          <ellipse cx="25" cy="21" rx="2.2" ry="5.1" fill="none" stroke="#f19bb0" strokeWidth="2.1" />
-        </g>
-
-        {/* bunga lily pink di kanan */}
-        <g transform="translate(72 19)">
-          <g fill="#f5a7b7" stroke="#d98599" strokeWidth="0.45">
-            <path d="M0 0 C-7 -6 -8 -13 -3 -14 C1 -15 3 -8 2 -2 Z" />
-            <path d="M0 0 C-2 -9 1 -15 5 -14 C9 -12 7 -5 3 -1 Z" />
-            <path d="M0 0 C5 -7 11 -8 12 -4 C13 0 7 3 2 3 Z" />
-            <path d="M0 0 C7 2 9 8 5 10 C1 11 -1 5 -2 2 Z" />
-            <path d="M0 0 C-4 7 -10 8 -11 4 C-12 0 -6 -3 -2 -2 Z" />
-            <path d="M0 0 C-8 1 -12 -3 -10 -7 C-8 -10 -3 -6 1 -3 Z" />
-          </g>
-          <g fill="#9b684c">
-            <circle cx="-2.8" cy="-2.4" r="0.75" />
-            <circle cx="0.1" cy="-4.1" r="0.75" />
-            <circle cx="3" cy="-2.6" r="0.75" />
-            <circle cx="1.7" cy="0.2" r="0.75" />
-          </g>
-          <path d="M0 0 C0 3 -1 5 -2 7" fill="none" stroke="#80934e" strokeWidth="0.8" strokeLinecap="round" />
-        </g>
-
-        {/* LEHER + dress pink polkadot */}
-        <path d="M43 56 Q48 59 53 56 L53 61 Q48 64 43 61 Z" fill="#f1b995" />
-        <path
-          d="M39 59 Q48 63 57 59 L62 72 Q66 79 68 83
-             Q48 88 28 83 Q30 77 34 72 Z"
-          fill="url(#m-dress-soft)"
-          stroke="#d77f95"
-          strokeWidth="0.45"
-        />
-
-        {/* kerah putih frill */}
-        <path d="M39 59 Q48 64 57 59 L54 64 Q48 67 42 64 Z" fill="#fff7f1" />
-        <path d="M34 72 Q48 76 62 72" fill="none" stroke="#fff4ef" strokeWidth="1.5" strokeLinecap="round" />
-
-        {/* lengan rileks di samping, TIDAK memegang apa pun */}
-        <g className="m-arm m-arm-l">
-          <path d="M35 63 Q30 68 29 75" fill="none" stroke="#efb58f" strokeWidth="3.4" strokeLinecap="round" />
-          <path d="M35 62 Q31 61 29 64" fill="none" stroke="#f7a9b8" strokeWidth="4.2" strokeLinecap="round" />
-          <circle cx="29" cy="75" r="2.2" fill="#efb58f" />
-        </g>
-        <g className="m-arm m-arm-r">
-          <path d="M61 63 Q66 68 67 75" fill="none" stroke="#efb58f" strokeWidth="3.4" strokeLinecap="round" />
-          <path d="M61 62 Q65 61 67 64" fill="none" stroke="#f7a9b8" strokeWidth="4.2" strokeLinecap="round" />
-          <circle cx="67" cy="75" r="2.2" fill="#efb58f" />
-        </g>
-
-        {/* polkadot putih */}
-        <g fill="#fff9f5" opacity="0.9">
-          <circle cx="39" cy="68" r="1.05" /><circle cx="48" cy="69.5" r="1.05" />
-          <circle cx="57" cy="67.5" r="1.05" /><circle cx="34.5" cy="76" r="1.05" />
-          <circle cx="43.5" cy="78" r="1.05" /><circle cx="53" cy="76" r="1.05" />
-          <circle cx="62" cy="79" r="1.05" /><circle cx="39" cy="82" r="1.05" />
-          <circle cx="49" cy="83.5" r="1.05" /><circle cx="58" cy="82" r="1.05" />
-        </g>
-
-        {/* rok bergelombang */}
-        <path d="M28 83 Q32 85 36 84 Q40 87 44 85 Q48 88 52 85 Q56 87 60 84 Q64 85 68 83"
-          fill="none" stroke="#fff7f2" strokeWidth="1.7" strokeLinecap="round" />
-
-        {/* kaki, kaus kaki ruffle, Mary Jane pink */}
-        <g className="m-leg m-leg-l">
-          <rect x="39.5" y="84" width="6" height="5.5" rx="2.4" fill="#efb58f" />
-          <path d="M39 88 Q42.5 86.5 46 88 L46 91.5 Q42.5 93 39 91.5 Z" fill="#fff7f2" />
-          <path d="M38.2 91 Q42.4 89.5 47 91.2 L46.5 95 Q42 96 38 94.5 Z" fill="#ee8fa5" stroke="#c96e85" strokeWidth="0.45" />
-          <path d="M39.2 91.7 Q42.4 93 46 91.7" fill="none" stroke="#fff1ed" strokeWidth="0.7" />
-        </g>
-        <g className="m-leg m-leg-r">
-          <rect x="50.5" y="84" width="6" height="5.5" rx="2.4" fill="#efb58f" />
-          <path d="M50 88 Q53.5 86.5 57 88 L57 91.5 Q53.5 93 50 91.5 Z" fill="#fff7f2" />
-          <path d="M49.2 91 Q53.4 89.5 58 91.2 L57.5 95 Q53 96 49 94.5 Z" fill="#ee8fa5" stroke="#c96e85" strokeWidth="0.45" />
-          <path d="M50.2 91.7 Q53.4 93 57 91.7" fill="none" stroke="#fff1ed" strokeWidth="0.7" />
+        <g className="m-spark m-spark2">
+          <path transform="translate(90.5 33) scale(0.5)" d="M0 -4 Q0.8 -0.8 4 0 Q0.8 0.8 0 4 Q-0.8 0.8 -4 0 Q-0.8 -0.8 0 -4 Z" />
         </g>
 
         {asleep && (
@@ -369,7 +296,7 @@ export function Mascot() {
   const [pose, setPose] = useState<Pose>('idle');
   const [bubble, setBubble] = useState<Bubble | null>(null);
   const [vw, setVw] = useState(1024);
-  const [look, setLook] = useState<{ style: HairStyle; color: string }>({ style: 'lurus', color: HAIR_COLORS[0].hex });
+  const [look, setLook] = useState<{ style: HairStyle; color: string }>({ style: 'gelombang', color: HAIR_COLORS[0].hex });
 
   const rootRef = useRef<HTMLDivElement>(null);
   const liftRef = useRef<HTMLDivElement>(null);
