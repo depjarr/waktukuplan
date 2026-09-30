@@ -6,7 +6,7 @@ import type { EventRow } from '@/lib/types';
 import { usePlanner } from './PlannerProvider';
 
 /**
- * Karakter kecil yang berjalan-jalan di bagian bawah layar.
+ * Karakter kecil bernama Tika yang berjalan-jalan di bagian bawah layar.
  *  - Muncul berjalan dari kiri, melambai, lalu menyapa (menyebut jadwal hari ini).
  *  - Sesekali jalan ke tempat lain, atau tidur sebentar.
  *  - Diklik => membuka jendela "Asisten Jadwal" (AI) yang sudah ada di AiDialog.
@@ -43,6 +43,7 @@ const HAIR_COLORS: { hex: string; label: string }[] = [
 ];
 const LOOK_KEY = 'waktukuplan-mascot-look';
 
+const NAME = 'Tika'; // nama karakter, muncul di sapaan, tombol, dan label
 const SIZE = 96; // px, harus sama dengan --m-size di mascot.css
 const SPEED = 55; // px per detik
 const MARGIN = 12;
@@ -59,10 +60,10 @@ function buildGreeting(events: EventRow[], todayKey: string, now: Date | null): 
   const left = events
     .filter((e) => e.kind !== 'text' && !e.done && e.date === todayKey && !(now && isPastEvent(e, now)))
     .sort((a, b) => (a.start_time ?? '99:99').localeCompare(b.start_time ?? '99:99'));
-  if (!left.length) return `${hi}! Hari ini belum ada jadwal. Mau kutambahin sesuatu?`;
+  if (!left.length) return `${hi}! Aku ${NAME}. Hari ini belum ada jadwal, mau kutambahin sesuatu?`;
   const next = left[0];
   const when = next.start_time ? ` jam ${next.start_time}` : '';
-  return `${hi}! Ada ${left.length} jadwal lagi hari ini. Berikutnya: ${clip(next.title, 36)}${when}.`;
+  return `${hi}, aku ${NAME}! Ada ${left.length} jadwal lagi hari ini. Berikutnya: ${clip(next.title, 36)}${when}.`;
 }
 
 /** Rambut bagian belakang (di belakang kepala & baju). Beda tiap model. */
@@ -252,8 +253,8 @@ export function Mascot() {
   const bubbleTimer = useRef<number | undefined>(undefined);
   const poseTimer = useRef<number | undefined>(undefined);
 
-
-  const live = useRef<{ aiDlg: typeof aiDlg; bubble: boolean; greet: () => string }>({ aiDlg, bubble: !!bubble, greet: () => '' });
+  // Nilai terbaru untuk dibaca dari timer tanpa perlu memulai ulang efek.
+  const live = useRef({ aiDlg, bubble: !!bubble, greet: (): string => '' });
   live.current = { aiDlg, bubble: !!bubble, greet: () => buildGreeting(events, todayKey, now) };
 
   useEffect(() => {
@@ -362,7 +363,7 @@ export function Mascot() {
   useEffect(() => {
     if (!enabled || flash.size === 0 || dragging.current) return;
     setPoseFor('happy', 1700);
-    if (!aiDlg) showBubble('Sip! Sudah masuk kalender ✨', { actions: false, ms: 3200 });
+    if (!aiDlg) showBubble('Sip! Sudah kucatat di kalender ✨', { actions: false, ms: 3200 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flash]);
 
@@ -380,7 +381,7 @@ export function Mascot() {
     // Petunjuk singkat saat kursor diarahkan (maks. sekali per 20 detik, tidak menimpa sapaan)
     if (!live.current.bubble && !live.current.aiDlg && Date.now() - hintAt.current > 20_000) {
       hintAt.current = Date.now();
-      showBubble('Klik aku untuk tanya AI ✨ Angkat aku juga boleh!', { actions: false, ms: 3200 });
+      showBubble(`Hai, aku ${NAME}! Klik aku untuk tanya AI ✨ Angkat aku juga boleh!`, { actions: false, ms: 3200 });
     }
     // Kalau lagi berjalan, berhenti di tempat supaya gampang diklik.
     if (Date.now() < busyUntil.current && rootRef.current) {
@@ -469,7 +470,7 @@ export function Mascot() {
   function hideForever() {
     hideBubble();
     updateUi({ mascot: false });
-    toast('Karakter disembunyikan. Munculkan lagi di Tampilan → Panel → Karakter');
+    toast(`${NAME} disembunyikan. Munculkan lagi di Tampilan → Panel → Karakter`);
   }
 
   const align = x < 110 ? 'left' : x > vw - SIZE - 110 ? 'right' : 'center';
@@ -518,18 +519,18 @@ export function Mascot() {
             )}
             {bubble.actions && (
               <div className="m-acts">
-                <button className="btn primary small" onClick={openAi}>Tanya AI ➤</button>
+                <button className="btn primary small" onClick={openAi}>Tanya {NAME} ➤</button>
                 <button className="btn small" onClick={openPicker}>Ganti gaya 🎀</button>
                 <button className="btn small" onClick={hideBubble}>Nanti</button>
-                <button className="m-hide" onClick={hideForever}>Sembunyikan aku</button>
+                <button className="m-hide" onClick={hideForever}>Sembunyikan {NAME}</button>
               </div>
             )}
           </div>
         )}
         <button
           className="mascot-btn"
-          aria-label="Buka asisten jadwal (AI)"
-          title="Klik aku untuk minta bantuan AI. Angkat aku juga boleh!"
+          aria-label={`Buka asisten jadwal (${NAME}, AI)`}
+          title={`Klik ${NAME} untuk minta bantuan AI. Angkat juga boleh!`}
           data-pose={pose}
           style={{ '--dir': dir, '--m-hair': look.color } as CSSProperties}
           onPointerEnter={onEnter}
