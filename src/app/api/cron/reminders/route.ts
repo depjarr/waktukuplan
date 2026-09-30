@@ -1,15 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { Resend } from 'resend';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { REMIND_LABELS, REMIND_MINUTES, effectiveRemind } from '@/lib/reminders';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const REMIND_MINUTES: Record<string, number> = {
-  '5m': 5, '15m': 15, '30m': 30, '1h': 60, '3h': 180, '1d': 1440, '3d': 4320,
-};
 
 const APP_TZ_OFFSET = '+07:00';
 
@@ -23,10 +21,18 @@ export async function GET(req: NextRequest) {
     const admin = createAdminClient();
     const now = new Date();
 
+    // Ambil jadwal yang masih mungkin memicu pengingat (maks. 3 hari ke depan).
+    // Pengingat otomatis 10 menit berlaku untuk semua jadwal ber-jam, jadi
+    // kita tidak lagi memfilter berdasarkan kolom `remind`.
+    const dayKey = (offset: number) =>
+      new Date(now.getTime() + offset * 86_400_000 + 7 * 3_600_000).toISOString().slice(0, 10);
     const { data: events, error } = await admin
       .from('events')
-      .select('id, user_id, title, date, start_time, remind, reminders_sent')
-      .not('remind', 'eq', '{}');
+      .select('id, user_id, title, date, start_time, remind, reminders_sent, done, kind')
+      .eq('done', false)
+      .not('start_time', 'is', null)
+      .gte('date', dayKey(-1))
+      .lte('date', dayKey(4));
 
     if (error) {
       console.error('[Supabase Error]:', error.message);
@@ -43,7 +49,7 @@ export async function GET(req: NextRequest) {
       const alreadySent: string[] = ev.reminders_sent ?? [];
       const toSend: string[] = [];
 
-      for (const r of (ev.remind as string[]) ?? []) {
+      for (const r of effectiveRemind(ev as any)) {
         if (alreadySent.includes(r)) continue;
         const minutesBefore = REMIND_MINUTES[r];
         if (!minutesBefore) continue;
@@ -62,9 +68,7 @@ export async function GET(req: NextRequest) {
       const email = userData?.user?.email;
       if (!email) continue;
 
-      const labels: Record<string, string> = {
-        '5m': '5 menit', '15m': '15 menit', '30m': '30 menit', '1h': '1 jam', '3h': '3 jam', '1d': '1 hari', '3d': '3 hari',
-      };
+      const labels = REMIND_LABELS;
       const sentOk: string[] = [];
       for (const r of toSend) {
         const { error: sendError } = await resend.emails.send({

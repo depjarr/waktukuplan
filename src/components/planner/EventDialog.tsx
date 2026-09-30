@@ -134,6 +134,7 @@ function EventForm({ existing, presetDate }: { existing: EventRow | null; preset
               );
             })}
           </div>
+          <small style={{ opacity: 0.7 }}>🔔 Pengingat 10 menit sebelumnya selalu aktif otomatis untuk jadwal yang punya jam. Pilihan di atas bersifat tambahan.</small>
         </div>
 
         <div className="fsec-title span2">Lainnya</div>

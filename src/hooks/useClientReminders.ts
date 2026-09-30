@@ -1,14 +1,8 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { EventRow } from '@/lib/types';
+import { REMIND_LABELS, REMIND_MINUTES, effectiveRemind } from '@/lib/reminders';
 
-// Sama persis dengan /api/cron/reminders, biar kode & label konsisten.
-const REMIND_MINUTES: Record<string, number> = {
-  '5m': 5, '15m': 15, '30m': 30, '1h': 60, '3h': 180, '1d': 1440, '3d': 4320,
-};
-const REMIND_LABELS: Record<string, string> = {
-  '5m': '5 menit', '15m': '15 menit', '30m': '30 menit', '1h': '1 jam', '3h': '3 jam', '1d': '1 hari', '3d': '3 hari',
-};
 // Sama seperti APP_TZ_OFFSET di route cron, supaya jam yang dipakai konsisten
 // dengan email, terlepas dari timezone browser si user.
 const APP_TZ_OFFSET = '+07:00';
@@ -68,7 +62,7 @@ export function useClientReminders(events: EventRow[], fire: (msg: string) => vo
       }
 
       for (const e of events) {
-        const remind = e.remind ?? [];
+        const remind = effectiveRemind(e);
         if (!e.start_time || remind.length === 0) continue;
         const eventTime = new Date(`${e.date}T${e.start_time}:00${APP_TZ_OFFSET}`);
         if (Number.isNaN(eventTime.getTime()) || now >= eventTime) continue;
